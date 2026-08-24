@@ -1,0 +1,1207 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sutton Coldfield Sales</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    color-scheme: light;
+    --surface-page:   #f6f4ee;
+    --surface-card:   #fcfcfb;
+    --surface-raised: #ffffff;
+    --ink-primary:    #201a15;
+    --ink-secondary:  #5c554c;
+    --ink-muted:      #8c8579;
+    --grid:           #e4e1d7;
+    --baseline:       #c7c2b4;
+    --border:         rgba(24,18,12,0.10);
+    --accent:         #a8402a;
+    --accent-strong:  #7f2f1f;
+    --accent-wash:    rgba(168,64,42,0.09);
+    --good:           #0ca30c;
+    --bad:            #d03b3b;
+    --s1: #2a78d6; /* blue    */
+    --s2: #eb6834; /* orange  */
+    --s3: #1baf7a; /* aqua    */
+    --s4: #eda100; /* yellow  */
+    --s5: #e87ba4; /* magenta */
+    --shadow: 0 1px 2px rgba(24,18,12,0.04), 0 8px 24px -12px rgba(24,18,12,0.14);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      color-scheme: dark;
+      --surface-page:   #141210;
+      --surface-card:   #1c1a17;
+      --surface-raised: #221f1b;
+      --ink-primary:    #f5f1ea;
+      --ink-secondary:  #c3bcb0;
+      --ink-muted:      #948a7c;
+      --grid:           #2d2a25;
+      --baseline:       #3c372f;
+      --border:         rgba(255,255,255,0.10);
+      --accent:         #d1573a;
+      --accent-strong:  #ea8262;
+      --accent-wash:    rgba(209,87,58,0.16);
+      --good:           #17b317;
+      --bad:            #e66767;
+      --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -12px rgba(0,0,0,0.5);
+    }
+  }
+  :root[data-theme="dark"]{
+    color-scheme: dark;
+    --surface-page:   #141210;
+    --surface-card:   #1c1a17;
+    --surface-raised: #221f1b;
+    --ink-primary:    #f5f1ea;
+    --ink-secondary:  #c3bcb0;
+    --ink-muted:      #948a7c;
+    --grid:           #2d2a25;
+    --baseline:       #3c372f;
+    --border:         rgba(255,255,255,0.10);
+    --accent:         #d1573a;
+    --accent-strong:  #ea8262;
+    --accent-wash:    rgba(209,87,58,0.16);
+    --good:           #17b317;
+    --bad:            #e66767;
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -12px rgba(0,0,0,0.5);
+  }
+
+  *{ box-sizing: border-box; }
+  body{
+    margin:0;
+    background: var(--surface-page);
+    color: var(--ink-primary);
+    font-family: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap{ max-width: 1180px; margin: 0 auto; padding: 28px 20px 64px; }
+
+  /* ---------- header ---------- */
+  .masthead{
+    display:flex; align-items:flex-end; justify-content:space-between; gap:20px;
+    flex-wrap:wrap;
+    padding-bottom:18px; margin-bottom:18px;
+    border-bottom: 3px solid var(--accent);
+  }
+  .masthead .eyebrow{
+    font: 600 11px/1 "IBM Plex Mono", monospace; letter-spacing:.11em; text-transform:uppercase;
+    color: var(--accent); margin:0 0 8px;
+  }
+  .masthead h1{
+    font: 800 30px/1.05 "Archivo", sans-serif; letter-spacing:-.01em; margin:0;
+    text-wrap:balance;
+  }
+  .masthead .sub{ font-size:13.5px; color:var(--ink-secondary); margin:6px 0 0; }
+  .masthead .meta{ text-align:right; font: 500 12px/1.5 "IBM Plex Mono", monospace; color:var(--ink-muted); }
+  .masthead .meta b{ color:var(--ink-secondary); font-weight:600; }
+
+  /* ---------- filter bar ---------- */
+  .filterbar{
+    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    background:var(--surface-card); border:1px solid var(--border); border-radius:10px;
+    padding:10px 14px; margin-bottom:22px; box-shadow:var(--shadow);
+  }
+  .filterbar .flabel{ font:600 11px "IBM Plex Sans",sans-serif; letter-spacing:.05em; text-transform:uppercase; color:var(--ink-muted); }
+  .filterbar select{
+    appearance:none; border:1px solid var(--border); background:var(--surface-raised); color:var(--ink-primary);
+    font:500 12.5px "IBM Plex Sans",sans-serif; padding:7px 30px 7px 11px; border-radius:7px; cursor:pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238c8579' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:right 11px center;
+  }
+  .filterbar select:focus-visible{ outline:2px solid var(--accent); outline-offset:1px; }
+  .filterbar .customwrap{ display:flex; align-items:center; gap:8px; }
+  .filterbar .arrow{ color:var(--ink-muted); font-size:12px; }
+  .filterbar .rangepill{
+    margin-left:auto; font:600 11.5px "IBM Plex Mono",monospace; color:var(--accent);
+    background:var(--accent-wash); padding:5px 10px; border-radius:20px;
+  }
+
+  /* ---------- KPI row ---------- */
+  .kpis{
+    display:grid; grid-template-columns:repeat(3, 1fr);
+    gap:1px; background:var(--border);
+    border:1px solid var(--border); border-radius:10px; overflow:hidden;
+    margin-bottom:28px; box-shadow:var(--shadow);
+  }
+  @media (max-width:900px){ .kpis{ grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:480px){ .kpis{ grid-template-columns:1fr; } }
+  .kpi{ background:var(--surface-card); padding:16px 18px; position:relative; }
+  .kpi.partial{ background: repeating-linear-gradient(135deg, var(--surface-card), var(--surface-card) 7px, var(--accent-wash) 7px, var(--accent-wash) 8px); }
+  .kpi .label{ font-size:11px; letter-spacing:.05em; text-transform:uppercase; color:var(--ink-muted); font-weight:600; }
+  .kpi .value{ font:600 24px/1.2 "IBM Plex Mono", monospace; margin-top:6px; letter-spacing:-.01em; }
+  .kpi .delta{ margin-top:5px; font:500 12px "IBM Plex Mono",monospace; display:flex; align-items:center; gap:4px; }
+  .kpi .delta.up{ color:var(--good); } .kpi .delta.down{ color:var(--bad); }
+  .kpi .foot{ margin-top:5px; font-size:11.5px; color:var(--ink-muted); }
+  .kpi .split{ display:flex; height:8px; border-radius:5px; overflow:hidden; margin-top:9px; background:var(--grid); }
+  .kpi .split i.a{ background:var(--s1); } .kpi .split i.b{ background:var(--s3); }
+  .kpi .splitkey{ display:flex; justify-content:space-between; font-size:11px; color:var(--ink-secondary); margin-top:5px; font-family:"IBM Plex Mono",monospace; }
+
+  /* ---------- section / card ---------- */
+  section{ margin-bottom:30px; }
+  .section-head{ display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:12px; }
+  .section-head h2{ font:700 16px "Archivo",sans-serif; margin:0; letter-spacing:-.005em; display:flex; align-items:center; gap:8px; }
+  .section-head p{ margin:2px 0 0; font-size:12.5px; color:var(--ink-muted); }
+  .badge{ font:600 10px "IBM Plex Mono",monospace; letter-spacing:.04em; text-transform:uppercase; padding:3px 7px; border-radius:5px; background:var(--accent-wash); color:var(--accent); }
+
+  .controls{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .segmented{ display:inline-flex; background:var(--grid); border-radius:8px; padding:2px; gap:2px; }
+  .segmented button{
+    appearance:none; border:0; background:transparent; color:var(--ink-secondary);
+    font:500 12px "IBM Plex Sans",sans-serif; padding:6px 11px; border-radius:6px; cursor:pointer;
+  }
+  .segmented button.active{ background:var(--surface-raised); color:var(--ink-primary); font-weight:600; box-shadow:0 1px 2px rgba(0,0,0,.08); }
+  .segmented button:focus-visible{ outline:2px solid var(--accent); outline-offset:1px; }
+
+  .tablebtn{
+    appearance:none; border:1px solid var(--border); background:var(--surface-raised); color:var(--ink-secondary);
+    font:500 12px "IBM Plex Sans",sans-serif; padding:6px 11px; border-radius:7px; cursor:pointer;
+  }
+  .tablebtn:hover{ color:var(--ink-primary); border-color:var(--ink-muted); }
+  .tablebtn:focus-visible{ outline:2px solid var(--accent); outline-offset:1px; }
+
+  .card{
+    background:var(--surface-card); border:1px solid var(--border); border-radius:12px;
+    padding:18px 18px 12px; box-shadow:var(--shadow);
+  }
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+  @media (max-width:760px){ .grid2{ grid-template-columns:1fr; } }
+
+  .chartbox{ position:relative; width:100%; overflow:visible; }
+  .chartbox svg{ display:block; width:100%; height:auto; overflow:visible; }
+  .chartbox svg text{ font-family:"IBM Plex Mono",monospace; fill:var(--ink-muted); font-size:10.5px; }
+  .gridline{ stroke:var(--grid); stroke-width:1; shape-rendering:crispEdges; }
+  .baseline{ stroke:var(--baseline); stroke-width:1; shape-rendering:crispEdges; }
+  .hit{ fill:transparent; cursor:pointer; }
+  .bar-seg{ transition: opacity .12s ease; }
+  .bar-seg.dim{ opacity:.35; }
+  .line-path{ fill:none; stroke-width:2; stroke-linejoin:round; stroke-linecap:round; }
+  .area-fill{ opacity:.12; }
+  .crosshair{ stroke:var(--ink-muted); stroke-width:1; stroke-dasharray:2,3; pointer-events:none; }
+  .endmark{ stroke:var(--surface-card); stroke-width:2; }
+
+  .legend{ display:flex; flex-wrap:wrap; gap:14px; margin:2px 0 14px; }
+  .legend button{
+    appearance:none; border:0; background:transparent; padding:0; cursor:pointer;
+    display:flex; align-items:center; gap:6px; font:500 12px "IBM Plex Sans",sans-serif; color:var(--ink-secondary);
+  }
+  .legend button.off{ opacity:.4; text-decoration:line-through; }
+  .legend .sw{ width:10px; height:10px; border-radius:2.5px; flex:none; }
+  .legend .sw.dashed{ border:1.5px dashed currentColor; background:transparent !important; }
+
+  .tooltip{
+    position:fixed; pointer-events:none; z-index:50; background:var(--surface-raised);
+    border:1px solid var(--border); border-radius:8px; padding:9px 11px; box-shadow:var(--shadow);
+    font-size:12px; opacity:0; transform:translateY(2px); transition:opacity .08s ease;
+    min-width:120px;
+  }
+  .tooltip.show{ opacity:1; }
+  .tooltip .tt-title{ font:600 12px "Archivo",sans-serif; margin-bottom:5px; color:var(--ink-primary); }
+  .tooltip .tt-row{ display:flex; align-items:center; gap:6px; justify-content:space-between; padding:1.5px 0; }
+  .tooltip .tt-row .k{ display:flex; align-items:center; gap:5px; color:var(--ink-secondary); }
+  .tooltip .tt-row .key{ width:9px; height:2px; border-radius:1px; flex:none; }
+  .tooltip .tt-row .v{ font:600 12px "IBM Plex Mono",monospace; color:var(--ink-primary); }
+
+  /* ranked meter list */
+  .meterlist{ display:flex; flex-direction:column; gap:12px; padding:4px 0 8px; }
+  .meterrow .top{ display:flex; justify-content:space-between; font-size:12.5px; margin-bottom:5px; }
+  .meterrow .top .name{ color:var(--ink-secondary); font-weight:500; }
+  .meterrow .top .val{ font:600 12.5px "IBM Plex Mono",monospace; color:var(--ink-primary); }
+  .meterrow .track{ height:10px; border-radius:5px; background:var(--grid); overflow:hidden; }
+  .meterrow .fill{ height:100%; border-radius:5px; }
+
+  .tablewrap{ overflow-x:auto; margin-top:10px; }
+  table.datatable{ width:100%; border-collapse:collapse; font-size:12.5px; }
+  table.datatable th, table.datatable td{ text-align:right; padding:7px 10px; border-bottom:1px solid var(--border); font-variant-numeric:tabular-nums; font-family:"IBM Plex Mono",monospace; white-space:nowrap; }
+  table.datatable th:first-child, table.datatable td:first-child{ text-align:left; font-family:"IBM Plex Sans",sans-serif; }
+  table.datatable thead th{ color:var(--ink-muted); font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:.04em; font-family:"IBM Plex Sans",sans-serif; }
+  table.datatable tfoot td{ font-weight:600; border-top:1.5px solid var(--baseline); border-bottom:none; color:var(--ink-primary); }
+  .hidden{ display:none !important; }
+
+  .footnote{ font-size:11.5px; color:var(--ink-muted); margin-top:10px; line-height:1.6; }
+  .footnote.caveat{ background:var(--accent-wash); border-radius:8px; padding:9px 12px; color:var(--ink-secondary); }
+  footer{ margin-top:36px; padding-top:16px; border-top:1px solid var(--border); font-size:12px; color:var(--ink-muted); display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; }
+
+  .sectiontitle{ font-size:11px; font-weight:600; color:var(--ink-secondary); text-transform:uppercase; letter-spacing:.05em; margin:0 0 12px; }
+
+  /* forecast / scenario */
+  .forecast-card{ border-top:2px dashed var(--baseline); }
+  .stat-strip{ display:flex; gap:1px; background:var(--border); border:1px solid var(--border); border-radius:10px; overflow:hidden; margin-bottom:16px; }
+  .stat-strip .s{ flex:1; background:var(--surface-card); padding:13px 16px; }
+  .stat-strip .s .l{ font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-muted); font-weight:600; }
+  .stat-strip .s .v{ font:600 19px "IBM Plex Mono",monospace; margin-top:4px; }
+  @media (max-width:700px){ .stat-strip{ flex-wrap:wrap; } .stat-strip .s{ flex:1 1 45%; } }
+
+  .sliders{ display:flex; flex-direction:column; gap:16px; margin-bottom:6px; }
+  .slider-row .srow-top{ display:flex; justify-content:space-between; font-size:12.5px; margin-bottom:6px; }
+  .slider-row .srow-top .sname{ font-weight:600; color:var(--ink-primary); }
+  .slider-row .srow-top .sname small{ display:block; font-weight:400; color:var(--ink-muted); font-size:11px; margin-top:1px; }
+  .slider-row .srow-top .sval{ font:600 13px "IBM Plex Mono",monospace; color:var(--accent); }
+  .slider-row input[type=range]{
+    width:100%; accent-color:var(--accent); height:4px; cursor:pointer;
+  }
+  .scenario-result{
+    display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;
+    background:var(--accent-wash); border-radius:10px; padding:14px 18px; margin-top:14px;
+  }
+  .scenario-result .big{ font:600 22px "IBM Plex Mono",monospace; color:var(--accent-strong); }
+  .scenario-result .lbl{ font-size:12px; color:var(--ink-secondary); margin-top:2px; }
+
+  @media (prefers-reduced-motion: reduce){ *{ transition:none !important; } }
+</style>
+
+<div class="wrap">
+
+  <div class="masthead">
+    <div>
+      <p class="eyebrow">Sales monitor</p>
+      <h1>The Real Pizza Company — Sutton Coldfield</h1>
+      <p class="sub">Every order since opening, across till, app and delivery partners.</p>
+    </div>
+    <div class="meta">
+      Trading since <b>5 Aug 2025</b><br>
+      Data through <b>24 Aug 2026</b>
+    </div>
+  </div>
+
+  <div class="filterbar">
+    <span class="flabel">Date range</span>
+    <select id="rangeSelect"></select>
+    <span class="customwrap hidden" id="customWrap">
+      <span class="arrow">from</span>
+      <select id="customFrom"></select>
+      <span class="arrow">to</span>
+      <select id="customTo"></select>
+    </span>
+    <span class="rangepill" id="rangePill"></span>
+  </div>
+
+  <div class="kpis" id="kpiRow"></div>
+
+  <section>
+    <div class="section-head">
+      <div>
+        <h2 id="trendTitle">Monthly net sales</h2>
+        <p id="trendSub">Every complete month since opening</p>
+      </div>
+      <div class="controls">
+        <div class="segmented" id="metricToggle">
+          <button data-metric="net_sales" class="active">Net sales</button>
+          <button data-metric="orders">Orders</button>
+          <button data-metric="aov">Avg order</button>
+          <button data-metric="discounts">Discounts</button>
+        </div>
+        <button class="tablebtn" id="trendTableBtn" aria-expanded="false">View as table</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="chartbox" id="trendChart"></div>
+      <div class="tablewrap hidden" id="trendTableWrap"></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <div>
+        <h2>Where orders come from</h2>
+        <p>Monthly order mix — RPC's own channels vs. marketplace vendors</p>
+      </div>
+      <div class="controls">
+        <div class="segmented" id="channelToggle">
+          <button data-view="grouped" class="active">RPC vs Vendors</button>
+          <button data-view="sources">By source</button>
+        </div>
+        <button class="tablebtn" id="channelTableBtn" aria-expanded="false">View as table</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="legend" id="channelLegend"></div>
+      <div class="chartbox" id="channelChart"></div>
+      <div class="tablewrap hidden" id="channelTableWrap"></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <div>
+        <h2>Weekly net sales</h2>
+        <p id="weeklySub">Every week since opening</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="chartbox" id="weeklyChart"></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <div>
+        <h2>When customers order</h2>
+        <p>Net sales by day of week and hour of day</p>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <div class="chartbox" id="dowChart"></div>
+      </div>
+      <div class="card">
+        <div class="chartbox" id="hodChart"></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <div>
+        <h2>Order type &amp; take-home</h2>
+        <p>How orders split by dispatch type, and what's actually kept after refunds</p>
+      </div>
+      <button class="tablebtn" id="dispatchTableBtn" aria-expanded="false">View as table</button>
+    </div>
+    <div class="card">
+      <p class="sectiontitle">Net sales by dispatch type, per month</p>
+      <div class="chartbox" id="dispatchChart"></div>
+    </div>
+    <div class="card" style="margin-top:14px;">
+      <p class="sectiontitle">Take-home by dispatch type — selected range</p>
+      <div class="tablewrap" id="dispatchTableWrap"></div>
+      <p class="footnote caveat">Take-home here is revenue after refunds, as recorded in this export. Marketplace channels (Uber Eats, Deliveroo, Just Eat) typically deduct a commission — often in the 20–30% range — before paying out, and that deduction is <b>not</b> reflected in this data, so real take-home from delivery orders placed via those apps will be lower than shown.</p>
+    </div>
+    <div class="card" style="margin-top:14px;">
+      <p class="sectiontitle">Payment method — selected range</p>
+      <div class="meterlist" id="paymentList"></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <div>
+        <h2>Refunds &amp; discounts</h2>
+        <p id="rdSub">Refunds vs. discounts given, by month</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="legend" id="rdLegend"></div>
+      <div class="chartbox" id="rdChart"></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <div>
+        <h2>Sales forecast to December 2026 <span class="badge">Estimate</span></h2>
+        <p>Projected using the same months last year, scaled by this year's year-over-year trend</p>
+      </div>
+    </div>
+    <div class="card forecast-card">
+      <div class="stat-strip" id="forecastStats"></div>
+      <div class="legend" id="forecastLegend"></div>
+      <div class="chartbox" id="forecastChart"></div>
+      <p class="footnote caveat" id="forecastCaveat"></p>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <div>
+        <h2>Marketing investment scenario <span class="badge">Estimate</span></h2>
+        <p>What Sep–Dec could look like with leaflets, digital ads and field marketing — like a Domino's-style local push</p>
+      </div>
+    </div>
+    <div class="card forecast-card">
+      <div class="sliders" id="sliders"></div>
+      <div class="legend" id="scenarioLegend"></div>
+      <div class="chartbox" id="scenarioChart"></div>
+      <div class="scenario-result" id="scenarioResult"></div>
+      <p class="footnote caveat">These uplift percentages are illustrative planning assumptions based on commonly-cited ranges for local food-delivery marketing (leaflet drops, paid social/search, and in-person field marketing) — they are <b>not</b> specific to this business and are not a guaranteed outcome. Drag the sliders to match your own campaign quotes or past results.</p>
+    </div>
+  </section>
+
+  <footer>
+    <span>Source: order-level export, sales_data.csv (8,704 orders)</span>
+    <span>Aug 2025 &amp; Aug 2026 are partial months</span>
+  </footer>
+</div>
+
+<div class="tooltip" id="tooltip">
+  <div class="tt-title" id="ttTitle"></div>
+  <div id="ttRows"></div>
+</div>
+
+<script>
+window.__SALES_DATA__ = {"generated":"2026-08-24","shop":"The Real Pizza Company - Sutton Coldfield","opened":"2025-08-05","monthly":[{"month":"2025-08","orders":524,"net_sales":14162.33,"revenue":15068.67,"revenue_after_refunds":15031.84,"refunds":70.27,"tips":60.01,"discounts":2349.17,"aov":27.03,"rpc_orders":410,"vendor_orders":114,"sources":{"Flipdish":160,"In store":250,"Uber Eats":58,"Deliveroo":48,"Just Eat":8},"sources_net":{"Flipdish":4926.76,"In store":5827.65,"Uber Eats":1528.81,"Deliveroo":1637.33,"Just Eat":241.78},"refunded_orders":15,"dispatch":{"Delivery":{"orders":302,"net_sales":9135.8,"refunds":49.03,"revenue_after_refunds":9989.87},"Collection":{"orders":77,"net_sales":2157.46,"refunds":7.5,"revenue_after_refunds":2161.91},"Take Away":{"orders":145,"net_sales":2869.07,"refunds":13.74,"revenue_after_refunds":2880.06},"Dine In":{"orders":0,"net_sales":0,"refunds":0,"revenue_after_refunds":0}},"payment":{"Paid online":8515.06,"Credit":2368.87,"Cash":737.09,"Unpaid":124.65,"Other":2357.07,"Mix":59.59},"dow":{"Monday":452.95,"Tuesday":560.99,"Wednesday":1952.4,"Thursday":1742.39,"Friday":3364.44,"Saturday":3853.36,"Sunday":2235.8},"hod":{"0":0,"1":0,"2":0,"3":0,"4":0,"5":0,"6":0,"7":0,"8":0,"9":0,"10":0,"11":27.55,"12":175.73,"13":270.6,"14":410.39,"15":678.38,"16":1451.36,"17":2501.15,"18":2659.83,"19":2802.31,"20":2017.97,"21":976.28,"22":190.78,"23":0}},{"month":"2025-09","orders":585,"net_sales":15217.16,"revenue":17138.03,"revenue_after_refunds":17114.08,"refunds":22.45,"tips":54.99,"discounts":2485.14,"aov":26.01,"rpc_orders":336,"vendor_orders":249,"sources":{"Flipdish":187,"In store":149,"Uber Eats":108,"Deliveroo":95,"Just Eat":46},"sources_net":{"Flipdish":5254.15,"In store":2915.9,"Uber Eats":2886.68,"Deliveroo":2699.99,"Just Eat":1460.44},"refunded_orders":2,"dispatch":{"Delivery":{"orders":359,"net_sales":10435.59,"refunds":22.45,"revenue_after_refunds":11929.42},"Collection":{"orders":80,"net_sales":2213.28,"refunds":0.0,"revenue_after_refunds":2400.24},"Take Away":{"orders":146,"net_sales":2568.29,"refunds":0.0,"revenue_after_refunds":2784.42},"Dine In":{"orders":0,"net_sales":0,"refunds":0,"revenue_after_refunds":0}},"payment":{"Paid online":12481.65,"Credit":2159.92,"Cash":359.59,"Unpaid":177.03,"Other":0,"Mix":38.97},"dow":{"Monday":1051.95,"Tuesday":1323.05,"Wednesday":923.19,"Thursday":1195.49,"Friday":4014.0,"Saturday":4120.81,"Sunday":2588.67},"hod":{"0":0,"1":0,"2":0,"3":0,"4":0,"5":0,"6":0,"7":0,"8":0,"9":0,"10":0,"11":124.39,"12":112.68,"13":340.88,"14":615.57,"15":493.01,"16":1776.24,"17":2914.96,"18":3417.91,"19":2970.53,"20":1801.55,"21":637.49,"22":11.95,"23":0}},{"month":"2025-10","orders":696,"net_sales":17455.36,"revenue":20922.65,"revenue_after_refunds":20804.62,"refunds":118.03,"tips":78.35,"discounts":4118.95,"aov":25.08,"rpc_orders":394,"vendor_orders":302,"sources":{"Flipdish":254,"In store":140,"Uber Eats":147,"Deliveroo":120,"Just Eat":35},"sources_net":{"Flipdish":7798.13,"In store":2682.37,"Uber Eats":3131.62,"Deliveroo":2938.16,"Just Eat":905.08},"refunded_orders":3,"dispatch":{"Delivery":{"orders":461,"net_sales":12372.01,"refunds":0.0,"revenue_after_refunds":15186.33},"Collection":{"orders":106,"net_sales":2599.75,"refunds":64.58,"revenue_after_refunds":2792.9},"Take Away":{"orders":129,"net_sales":2483.6,"refunds":53.45,"revenue_after_refunds":2825.39},"Dine In":{"orders":0,"net_sales":0,"refunds":0,"revenue_after_refunds":0}},"payment":{"Paid online":15078.65,"Credit":2074.7,"Cash":168.52,"Unpaid":96.91,"Other":0,"Mix":36.58},"dow":{"Monday":1012.04,"Tuesday":1305.09,"Wednesday":1610.2,"Thursday":1661.6,"Friday":5617.55,"Saturday":3592.53,"Sunday":2656.35},"hod":{"0":0,"1":0,"2":0,"3":0,"4":0,"5":0,"6":0,"7":0,"8":0,"9":0,"10":0,"11":0,"12":108.72,"13":215.5,"14":493.12,"15":683.11,"16":1941.05,"17":3601.89,"18":4037.19,"19":3335.03,"20":2139.44,"21":754.21,"22":146.1,"23":0}},{"month":"2025-11","orders":751,"net_sales":17789.84,"revenue":21555.45,"revenue_after_refunds":21518.8,"refunds":36.65,"tips":94.49,"discounts":5400.14,"aov":23.69,"rpc_orders":390,"vendor_orders":361,"sources":{"Flipdish":252,"In store":138,"Uber Eats":183,"Deliveroo":132,"Just Eat":46},"sources_net":{"Flipdish":7474.61,"In store":2425.86,"Uber Eats":3768.49,"Deliveroo":3084.96,"Just Eat":1035.92},"refunded_orders":2,"dispatch":{"Delivery":{"orders":520,"net_sales":13017.32,"refunds":0.0,"revenue_after_refunds":16239.18},"Collection":{"orders":104,"net_sales":2663.22,"refunds":0.0,"revenue_after_refunds":2918.83},"Take Away":{"orders":127,"net_sales":2109.3,"refunds":36.65,"revenue_after_refunds":2360.79},"Dine In":{"orders":0,"net_sales":0,"refunds":0,"revenue_after_refunds":0}},"payment":{"Paid online":15643.57,"Credit":1905.93,"Cash":87.0,"Unpaid":146.69,"Other":0,"Mix":6.65},"dow":{"Monday":1296.96,"Tuesday":1283.59,"Wednesday":1575.08,"Thursday":1689.96,"Friday":4498.92,"Saturday":4791.48,"Sunday":2653.85},"hod":{"0":0,"1":0,"2":0,"3":0,"4":0,"5":0,"6":0,"7":0,"8":0,"9":0,"10":0,"11":0,"12":20.75,"13":247.41,"14":276.72,"15":477.89,"16":1712.92,"17":2918.57,"18":3716.24,"19":4480.38,"20":2318.7,"21":1059.34,"22":480.72,"23":80.2}},{"month":"2025-12","orders":762,"net_sales":18829.17,"revenue":22543.75,"revenue_after_refunds":22514.3,"refunds":29.45,"tips":97.86,"discounts":5251.46,"aov":24.71,"rpc_orders":428,"vendor_orders":334,"sources":{"Flipdish":264,"In store":164,"Uber Eats":173,"Deliveroo":116,"Just Eat":45},"sources_net":{"Flipdish":8174.77,"In store":3161.96,"Uber Eats":3642.85,"Deliveroo":2891.71,"Just Eat":957.88},"refunded_orders":1,"dispatch":{"Delivery":{"orders":513,"net_sales":13454.45,"refunds":0.0,"revenue_after_refunds":16587.01},"Collection":{"orders":110,"net_sales":2871.53,"refunds":0.0,"revenue_after_refunds":3097.63},"Take Away":{"orders":139,"net_sales":2503.19,"refunds":29.45,"revenue_after_refunds":2829.66},"Dine In":{"orders":0,"net_sales":0,"refunds":0,"revenue_after_refunds":0}},"payment":{"Paid online":15992.36,"Credit":2159.15,"Cash":471.18,"Unpaid":150.7,"Other":0,"Mix":55.78},"dow":{"Monday":2180.81,"Tuesday":2318.9,"Wednesday":2263.23,"Thursday":1573.59,"Friday":4460.72,"Saturday":3625.68,"Sunday":2406.24},"hod":{"0":0,"1":0,"2":0,"3":0,"4":0,"5":0,"6":0,"7":0,"8":0,"9":0,"10":0,"11":0,"12":18.71,"13":385.85,"14":191.3,"15":307.66,"16":1493.06,"17":3472.22,"18":4323.7,"19":4351.75,"20":2754.97,"21":1304.02,"22":225.93,"23":0}},{"month":"2026-01","orders":711,"net_sales":16703.53,"revenue":21132.32,"revenue_after_refunds":21114.37,"refunds":17.95,"tips":91.05,"discounts":3965.45,"aov":23.49,"rpc_orders":414,"vendor_orders":297,"sources":{"Flipdish":288,"In store":126,"Uber Eats":137,"Deliveroo":102,"Just Eat":58},"sources_net":{"Flipdish":7749.31,"In store":2043.53,"Uber Eats":3027.45,"Deliveroo":2558.02,"Just Eat":1325.22},"refunded_orders":1,"dispatch":{"Delivery":{"orders":495,"net_sales":12529.89,"refunds":17.95,"revenue_after_refunds":16282.67},"Collection":{"orders":96,"net_sales":2256.52,"refunds":0.0,"revenue_after_refunds":2661.21},"Take Away":{"orders":120,"net_sales":1917.12,"refunds":0.0,"revenue_after_refunds":2170.49},"Dine In":{"orders":0,"net_sales":0,"refunds":0,"revenue_after_refunds":0}},"payment":{"Paid online":14838.16,"Credit":1544.5,"Cash":238.87,"Unpaid":82.0,"Other":0,"Mix":0},"dow":{"Monday":765.55,"Tuesday":963.77,"Wednesday":726.62,"Thursday":1596.27,"Friday":5799.02,"Saturday":5267.0,"Sunday":1585.3},"hod":{"0":0,"1":0,"2":0,"3":0,"4":0,"5":0,"6":0,"7":0,"8":0,"9":0,"10":0,"11":0,"12":68.52,"13":400.7,"14":345.65,"15":415.87,"16":1414.18,"17":3134.99,"18":4583.82,"19":4016.85,"20":1584.62,"21":717.98,"22":20.35,"23":0}},{"month":"2026-02","orders":760,"net_sales":18201.6,"revenue":23394.34,"revenue_after_refunds":23326.35,"refunds":67.99,"tips":149.07,"discounts":5039.78,"aov":23.95,"rpc_orders":442,"vendor_orders":318,"sources":{"Flipdish":313,"In store":129,"Uber Eats":145,"Deliveroo":119,"Just Eat":54},"sources_net":{"Flipdish":8390.06,"In store":2385.77,"Uber Eats":3050.91,"Deliveroo":3065.56,"Just Eat":1309.3},"refunded_orders":3,"dispatch":{"Delivery":{"orders":548,"net_sales":13720.12,"refunds":67.99,"revenue_after_refunds":18039.48},"Collection":{"orders":112,"net_sales":2805.97,"refunds":0.0,"revenue_after_refunds":3357.79},"Take Away":{"orders":100,"net_sales":1675.51,"refunds":0.0,"revenue_after_refunds":1929.08},"Dine In":{"orders":0,"net_sales":0,"refunds":0,"revenue_after_refunds":0}},"payment":{"Paid online":16082.25,"Credit":1441.24,"Cash":492.65,"Unpaid":168.85,"Other":0,"Mix":16.61},"dow":{"Monday":1354.22,"Tuesday":1495.32,"Wednesday":1496.09,"Thursday":1680.44,"Friday":4640.52,"Saturday":4913.98,"Sunday":2621.03},"hod":{"0":0,"1":0,"2":0,"3":0,"4":0,"5":0,"6":0,"7":0,"8":0,"9":0,"10":0,"11":0,"12":0,"13":92.69,"14":227.21,"15":367.05,"16":1405.04,"17":3150.47,"18":4423.1,"19":4576.29,"20":2647.92,"21":1222.81,"22":89.02,"23":0}},{"month":"2026-03","orders":870,"net_sales":19553.93,"revenue":25120.78,"revenue_after_refunds":25162.47,"refunds":8.0,"tips":154.05,"discounts":5415.92,"aov":22.48,"rpc_orders":498,"vendor_orders":372,"sources":{"Flipdish":321,"In store":177,"Uber Eats":173,"Deliveroo":145,"Just Eat":54},"sources_net":{"Flipdish":8198.59,"In store":2855.73,"Uber Eats":3835.27,"Deliveroo":3444.8,"Just Eat":1219.54},"refunded_orders":2,"dispatch":{"Delivery":{"orders":616,"net_sales":14960.5,"refunds":0.0,"revenue_after_refunds":19694.68},"Collection":{"orders":123,"net_sales":2661.9,"refunds":0.0,"revenue_after_refunds":3193.89},"Take Away":{"orders":126,"net_sales":1844.17,"refunds":8.0,"revenue_after_refunds":2169.08},"Dine In":{"orders":5,"net_sales":87.36,"refunds":0.0,"revenue_after_refunds":104.82}},"payment":{"Paid online":16924.58,"Credit":2015.11,"Cash":362.37,"Unpaid":226.04,"Other":0,"Mix":25.83},"dow":{"Monday":2083.68,"Tuesday":1660.55,"Wednesday":1399.04,"Thursday":1586.83,"Friday":4526.98,"Saturday":4450.47,"Sunday":3846.38},"hod":{"0":0,"1":0,"2":0,"3":0,"4":0,"5":0,"6":0,"7":0,"8":0,"9":0,"10":0,"11":0,"12":83.34,"13":382.57,"14":301.77,"15":519.95,"16":1467.78,"17":3433.53,"18":5109.15,"19":4750.54,"20":2396.09,"21":1054.8,"22":54.41,"23":0}},{"month":"2026-04","orders":677,"net_sales":16084.6,"revenue":20857.14,"revenue_after_refunds":20857.14,"refunds":0.0,"tips":158.43,"discounts":4137.47,"aov":23.76,"rpc_orders":376,"vendor_orders":301,"sources":{"Flipdish":248,"In store":128,"Uber Eats":145,"Deliveroo":117,"Just Eat":39},"sources_net":{"Flipdish":6679.53,"In store":2307.09,"Uber Eats":3134.9,"Deliveroo":2808.27,"Just Eat":1154.81},"refunded_orders":0,"dispatch":{"Delivery":{"orders":486,"net_sales":12346.72,"refunds":0.0,"revenue_after_refunds":16363.29},"Collection":{"orders":107,"net_sales":2468.28,"refunds":0.0,"revenue_after_refunds":2971.45},"Take Away":{"orders":83,"net_sales":1229.48,"refunds":0.0,"revenue_after_refunds":1474.26},"Dine In":{"orders":1,"net_sales":40.12,"refunds":0.0,"revenue_after_refunds":48.14}},"payment":{"Paid online":14004.45,"Credit":1490.36,"Cash":178.44,"Unpaid":411.35,"Other":0,"Mix":0},"dow":{"Monday":1822.73,"Tuesday":926.5,"Wednesday":1711.98,"Thursday":2279.09,"Friday":3691.07,"Saturday":3544.64,"Sunday":2108.59},"hod":{"0":0,"1":0,"2":0,"3":0,"4":0,"5":0,"6":0,"7":0,"8":0,"9":0,"10":0,"11":0,"12":178.85,"13":296.28,"14":380.24,"15":614.81,"16":1542.47,"17":3267.02,"18":3731.93,"19":3206.77,"20":2053.26,"21":783.39,"22":29.58,"23":0}},{"month":"2026-05","orders":612,"net_sales":15358.31,"revenue":19889.93,"revenue_after_refunds":19858.73,"refunds":31.2,"tips":160.96,"discounts":3695.65,"aov":25.1,"rpc_orders":373,"vendor_orders":239,"sources":{"Flipdish":278,"In store":95,"Uber Eats":132,"Deliveroo":79,"Just Eat":28},"sources_net":{"Flipdish":7667.3,"In store":1797.53,"Uber Eats":3274.0,"Deliveroo":1831.03,"Just Eat":788.45},"refunded_orders":3,"dispatch":{"Delivery":{"orders":454,"net_sales":12068.38,"refunds":31.2,"revenue_after_refunds":15914.81},"Collection":{"orders":82,"net_sales":1966.24,"refunds":0.0,"revenue_after_refunds":2360.27},"Take Away":{"orders":76,"net_sales":1323.69,"refunds":0.0,"revenue_after_refunds":1583.65},"Dine In":{"orders":0,"net_sales":0,"refunds":0,"revenue_after_refunds":0}},"payment":{"Paid online":13814.31,"Credit":1179.8,"Cash":205.05,"Unpaid":126.26,"Other":0,"Mix":32.89},"dow":{"Monday":1754.43,"Tuesday":778.04,"Wednesday":1097.41,"Thursday":1086.51,"Friday":3640.85,"Saturday":4238.41,"Sunday":2762.66},"hod":{"0":0,"1":0,"2":0,"3":0,"4":0,"5":0,"6":0,"7":0,"8":0,"9":0,"10":0,"11":18.84,"12":155.53,"13":400.22,"14":168.6,"15":544.99,"16":1632.0,"17":2571.48,"18":3499.88,"19":3222.46,"20":2262.47,"21":870.39,"22":11.45,"23":0}},{"month":"2026-06","orders":588,"net_sales":13402.15,"revenue":17341.6,"revenue_after_refunds":17341.6,"refunds":0.0,"tips":163.34,"discounts":4531.92,"aov":22.79,"rpc_orders":354,"vendor_orders":234,"sources":{"Flipdish":229,"In store":125,"Uber Eats":127,"Deliveroo":71,"Just Eat":36},"sources_net":{"Flipdish":6126.24,"In store":2064.46,"Uber Eats":2642.99,"Deliveroo":1740.28,"Just Eat":828.18},"refunded_orders":0,"dispatch":{"Delivery":{"orders":401,"net_sales":9880.76,"refunds":0.0,"revenue_after_refunds":13101.46},"Collection":{"orders":81,"net_sales":1913.58,"refunds":0.0,"revenue_after_refunds":2305.57},"Take Away":{"orders":105,"net_sales":1581.21,"refunds":0.0,"revenue_after_refunds":1902.65},"Dine In":{"orders":1,"net_sales":26.6,"refunds":0.0,"revenue_after_refunds":31.92}},"payment":{"Paid online":11417.97,"Credit":1383.37,"Cash":114.49,"Unpaid":470.52,"Other":0,"Mix":15.8},"dow":{"Monday":1518.35,"Tuesday":1192.45,"Wednesday":1040.78,"Thursday":1214.43,"Friday":3009.87,"Saturday":3086.23,"Sunday":2340.04},"hod":{"0":0,"1":0,"2":0,"3":0,"4":0,"5":0,"6":0,"7":0,"8":0,"9":0,"10":0,"11":0,"12":92.67,"13":126.89,"14":280.91,"15":450.04,"16":1198.11,"17":2036.1,"18":3084.15,"19":2853.45,"20":2324.51,"21":889.33,"22":65.99,"23":0}},{"month":"2026-07","orders":706,"net_sales":15315.64,"revenue":19967.08,"revenue_after_refunds":19967.08,"refunds":0.0,"tips":179.38,"discounts":6787.62,"aov":21.69,"rpc_orders":349,"vendor_orders":357,"sources":{"Flipdish":243,"In store":106,"Uber Eats":171,"Deliveroo":110,"Just Eat":76},"sources_net":{"Flipdish":6232.68,"In store":1692.12,"Uber Eats":3239.77,"Deliveroo":2611.41,"Just Eat":1539.66},"refunded_orders":0,"dispatch":{"Delivery":{"orders":524,"net_sales":11965.11,"refunds":0.0,"revenue_after_refunds":15950.6},"Collection":{"orders":73,"net_sales":1532.9,"refunds":0.0,"revenue_after_refunds":1839.47},"Take Away":{"orders":109,"net_sales":1817.63,"refunds":0.0,"revenue_after_refunds":2177.01},"Dine In":{"orders":0,"net_sales":0,"refunds":0,"revenue_after_refunds":0}},"payment":{"Paid online":13663.22,"Credit":1268.79,"Cash":116.13,"Unpaid":227.29,"Other":0,"Mix":40.21},"dow":{"Monday":1198.84,"Tuesday":695.25,"Wednesday":1826.78,"Thursday":1839.1,"Friday":4360.91,"Saturday":3003.43,"Sunday":2391.33},"hod":{"0":0,"1":0,"2":0,"3":0,"4":0,"5":0,"6":0,"7":0,"8":0,"9":0,"10":0,"11":12.49,"12":148.05,"13":338.17,"14":159.16,"15":467.27,"16":1579.22,"17":2808.41,"18":3877.75,"19":3294.81,"20":1916.1,"21":647.36,"22":66.85,"23":0}},{"month":"2026-08","orders":462,"net_sales":10213.57,"revenue":13265.84,"revenue_after_refunds":13265.84,"refunds":0.0,"tips":103.24,"discounts":2903.83,"aov":22.11,"rpc_orders":269,"vendor_orders":193,"sources":{"Flipdish":196,"In store":73,"Uber Eats":68,"Deliveroo":73,"Just Eat":52},"sources_net":{"Flipdish":4966.74,"In store":1212.45,"Uber Eats":1347.93,"Deliveroo":1673.54,"Just Eat":1012.91},"refunded_orders":0,"dispatch":{"Delivery":{"orders":325,"net_sales":7562.37,"refunds":0.0,"revenue_after_refunds":10088.81},"Collection":{"orders":73,"net_sales":1672.31,"refunds":0.0,"revenue_after_refunds":2004.88},"Take Away":{"orders":64,"net_sales":978.89,"refunds":0.0,"revenue_after_refunds":1172.15},"Dine In":{"orders":0,"net_sales":0,"refunds":0,"revenue_after_refunds":0}},"payment":{"Paid online":9144.54,"Credit":762.4,"Cash":32.86,"Unpaid":228.48,"Other":0,"Mix":45.29},"dow":{"Monday":571.72,"Tuesday":849.3,"Wednesday":953.37,"Thursday":1022.52,"Friday":2217.5,"Saturday":2845.29,"Sunday":1753.87},"hod":{"0":0,"1":0,"2":0,"3":0,"4":0,"5":0,"6":0,"7":0,"8":0,"9":0,"10":0,"11":0,"12":101.86,"13":83.44,"14":133.42,"15":211.29,"16":878.24,"17":1969.74,"18":2464.81,"19":2189.91,"20":1726.39,"21":419.55,"22":34.92,"23":0}}],"weekly":[{"week":"2025-08-04","orders":124,"net_sales":3212.5},{"week":"2025-08-11","orders":124,"net_sales":3286.61},{"week":"2025-08-18","orders":120,"net_sales":3283.4},{"week":"2025-08-25","orders":156,"net_sales":4379.82},{"week":"2025-09-01","orders":131,"net_sales":3498.93},{"week":"2025-09-08","orders":125,"net_sales":3669.57},{"week":"2025-09-15","orders":165,"net_sales":3884.66},{"week":"2025-09-22","orders":146,"net_sales":3702.59},{"week":"2025-09-29","orders":146,"net_sales":3892.87},{"week":"2025-10-06","orders":143,"net_sales":3727.27},{"week":"2025-10-13","orders":130,"net_sales":3138.31},{"week":"2025-10-20","orders":191,"net_sales":4729.0},{"week":"2025-10-27","orders":153,"net_sales":3639.55},{"week":"2025-11-03","orders":154,"net_sales":3837.8},{"week":"2025-11-10","orders":205,"net_sales":4917.41},{"week":"2025-11-17","orders":166,"net_sales":3585.28},{"week":"2025-11-24","orders":177,"net_sales":4239.12},{"week":"2025-12-01","orders":177,"net_sales":4194.56},{"week":"2025-12-08","orders":179,"net_sales":4256.49},{"week":"2025-12-15","orders":201,"net_sales":5057.68},{"week":"2025-12-22","orders":137,"net_sales":3508.2},{"week":"2025-12-29","orders":170,"net_sales":4259.65},{"week":"2026-01-05","orders":146,"net_sales":3724.92},{"week":"2026-01-12","orders":140,"net_sales":3404.94},{"week":"2026-01-19","orders":175,"net_sales":3723.46},{"week":"2026-01-26","orders":174,"net_sales":4084.03},{"week":"2026-02-02","orders":163,"net_sales":3709.73},{"week":"2026-02-09","orders":190,"net_sales":4480.51},{"week":"2026-02-16","orders":194,"net_sales":4613.75},{"week":"2026-02-23","orders":209,"net_sales":5241.0},{"week":"2026-03-02","orders":182,"net_sales":4039.66},{"week":"2026-03-09","orders":184,"net_sales":4425.39},{"week":"2026-03-16","orders":237,"net_sales":5317.69},{"week":"2026-03-23","orders":207,"net_sales":4531.21},{"week":"2026-03-30","orders":178,"net_sales":4133.96},{"week":"2026-04-06","orders":190,"net_sales":4464.47},{"week":"2026-04-13","orders":155,"net_sales":3642.27},{"week":"2026-04-20","orders":137,"net_sales":3327.33},{"week":"2026-04-27","orders":148,"net_sales":3752.56},{"week":"2026-05-04","orders":143,"net_sales":3654.14},{"week":"2026-05-11","orders":129,"net_sales":3066.19},{"week":"2026-05-18","orders":111,"net_sales":2833.92},{"week":"2026-05-25","orders":136,"net_sales":3283.43},{"week":"2026-06-01","orders":110,"net_sales":2528.32},{"week":"2026-06-08","orders":113,"net_sales":2618.64},{"week":"2026-06-15","orders":152,"net_sales":3496.73},{"week":"2026-06-22","orders":176,"net_sales":4048.68},{"week":"2026-06-29","orders":174,"net_sales":3834.74},{"week":"2026-07-06","orders":157,"net_sales":3402.18},{"week":"2026-07-13","orders":172,"net_sales":3750.1},{"week":"2026-07-20","orders":155,"net_sales":3316.01},{"week":"2026-07-27","orders":144,"net_sales":3022.2},{"week":"2026-08-03","orders":113,"net_sales":2494.72},{"week":"2026-08-10","orders":136,"net_sales":3266.95},{"week":"2026-08-17","orders":154,"net_sales":3152.09}],"totals":{"orders":8704,"net_sales":208287.19,"revenue":258197.58,"revenue_after_refunds":257877.22,"refunds":401.99,"tips":1545.22,"discounts":56082.5},"sourceOrder":["Flipdish","In store","Uber Eats","Deliveroo","Just Eat"],"dowOrder":["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],"dispatchOrder":["Delivery","Collection","Take Away","Dine In"],"paymentOrder":["Paid online","Credit","Cash","Unpaid","Other","Mix"]};
+</script>
+<script>
+(function(){
+"use strict";
+
+var DATA = window.__SALES_DATA__;
+var MONTHS = DATA.monthly;
+var N_MONTHS = MONTHS.length;
+
+var SVGNS = "http://www.w3.org/2000/svg";
+function el(tag, attrs, parent){
+  var e = document.createElementNS(SVGNS, tag);
+  for (var k in attrs){ e.setAttribute(k, attrs[k]); }
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function fmtGBP(v, dp){
+  dp = dp === undefined ? 0 : dp;
+  var n = Number(v);
+  var s = n.toLocaleString('en-GB', {minimumFractionDigits:dp, maximumFractionDigits:dp});
+  return "£" + s;
+}
+function fmtCompactGBP(v){
+  if (Math.abs(v) >= 1000) return "£" + (v/1000).toFixed(v>=10000?0:1) + "k";
+  return "£" + Math.round(v);
+}
+function fmtInt(v){ return Number(v).toLocaleString('en-GB'); }
+function monthLabel(m){
+  var months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  var y = m.slice(0,4), mo = parseInt(m.slice(5,7),10)-1;
+  return months[mo] + " " + y.slice(2);
+}
+function monthLabelLong(m){
+  var months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  var y = m.slice(0,4), mo = parseInt(m.slice(5,7),10)-1;
+  return months[mo] + " " + y;
+}
+function niceMax(v){
+  if (v <= 0) return 10;
+  var mag = Math.pow(10, Math.floor(Math.log10(v)));
+  var norm = v / mag;
+  var step = norm <= 1 ? 1 : norm <= 2 ? 2 : norm <= 2.5 ? 2.5 : norm <= 5 ? 5 : 10;
+  return step * mag;
+}
+function resolveColor(c){
+  if (c.indexOf('var(') !== 0) return c;
+  var name = c.slice(4,-1);
+  return getComputedStyle(document.body).getPropertyValue(name).trim();
+}
+
+/* ---------------- tooltip ---------------- */
+var tt = document.getElementById('tooltip');
+var ttTitle = document.getElementById('ttTitle');
+var ttRows = document.getElementById('ttRows');
+function showTooltip(x, y, title, rows){
+  ttTitle.textContent = title;
+  ttRows.innerHTML = "";
+  rows.forEach(function(r){
+    var row = document.createElement('div'); row.className = 'tt-row';
+    var kwrap = document.createElement('span'); kwrap.className = 'k';
+    if (r.color){
+      var key = document.createElement('span'); key.className = 'key'; key.style.background = r.color;
+      kwrap.appendChild(key);
+    }
+    var kt = document.createElement('span'); kt.textContent = r.label; kwrap.appendChild(kt);
+    var v = document.createElement('span'); v.className = 'v'; v.textContent = r.value;
+    row.appendChild(kwrap); row.appendChild(v);
+    ttRows.appendChild(row);
+  });
+  tt.classList.add('show');
+  positionTooltip(x, y);
+}
+function positionTooltip(x, y){
+  var pad = 14;
+  var ttW = tt.offsetWidth || 160, ttH = tt.offsetHeight || 60;
+  var left = x + pad, top = y - ttH - pad;
+  if (left + ttW > window.innerWidth - 8) left = x - ttW - pad;
+  if (top < 8) top = y + pad;
+  tt.style.left = left + "px";
+  tt.style.top = top + "px";
+}
+function hideTooltip(){ tt.classList.remove('show'); }
+function toLocal(svg, clientX, clientY){
+  var pt = svg.createSVGPoint(); pt.x = clientX; pt.y = clientY;
+  var m = svg.getScreenCTM();
+  if (!m) return {x:0,y:0};
+  var p = pt.matrixTransform(m.inverse());
+  return {x:p.x, y:p.y};
+}
+
+/* ---------------- bar chart (grouped / stacked / single, with optional projected styling) ---------------- */
+function drawBarChart(container, opts){
+  container.innerHTML = "";
+  var W = opts.width || 1000, H = opts.height || 300;
+  var margin = {top:14, right:12, bottom:28, left:opts.leftMargin || 50};
+  var pw = W - margin.left - margin.right, ph = H - margin.top - margin.bottom;
+  var cats = opts.categories, series = opts.series; // series: [{key,name,color,values:[],hidden}]
+  var n = cats.length;
+  var projected = opts.projected || cats.map(function(){return false;});
+
+  var stackTotals = cats.map(function(_, i){
+    return series.reduce(function(s, ser){ return s + (ser.hidden ? 0 : ser.values[i]); }, 0);
+  });
+  var maxVal = Math.max.apply(null, stackTotals.concat([opts.minMax||0]));
+  var top = niceMax(maxVal * 1.08 || 10);
+
+  var svg = el('svg', {viewBox:'0 0 '+W+' '+H, role:'img', 'aria-label':opts.ariaLabel||''}, container);
+
+  var ticks = 4;
+  for (var t=0;t<=ticks;t++){
+    var val = top * t / ticks;
+    var y = margin.top + ph - (val/top)*ph;
+    el('line', {class:'gridline', x1:margin.left, x2:W-margin.right, y1:y, y2:y}, svg);
+    var lbl = el('text', {x:margin.left-8, y:y+3, 'text-anchor':'end'}, svg);
+    lbl.textContent = opts.axisFmt ? opts.axisFmt(val) : Math.round(val);
+  }
+  el('line', {class:'baseline', x1:margin.left, x2:W-margin.right, y1:margin.top+ph, y2:margin.top+ph}, svg);
+
+  var band = pw / n;
+  var barW = Math.min(opts.barMax || 24, band * (series.length>1 && opts.mode==='grouped' ? 0.82/series.length : 0.62));
+  var gap = 2;
+
+  function roundedTopPath(rx, ry, w, h){
+    var rTop = Math.min(4, h);
+    return 'M'+rx+','+(ry+h)+' L'+rx+','+(ry+rTop)+
+      ' Q'+rx+','+ry+' '+(rx+rTop)+','+ry+
+      ' L'+(rx+w-rTop)+','+ry+
+      ' Q'+(rx+w)+','+ry+' '+(rx+w)+','+(ry+rTop)+
+      ' L'+(rx+w)+','+(ry+h)+' Z';
+  }
+
+  cats.forEach(function(cat, i){
+    var cx = margin.left + band*i + band/2;
+    var labelStep = n > 14 ? 2 : 1;
+    if (i % labelStep === 0){
+      var xl = el('text', {x:cx, y:H-8, 'text-anchor':'middle'}, svg);
+      xl.textContent = opts.xFmt ? opts.xFmt(cat, i) : cat;
+    }
+    var isProj = projected[i];
+
+    if (opts.mode === 'stacked'){
+      var yCursor = margin.top + ph;
+      var visibleSeries = series.filter(function(s){ return !s.hidden; });
+      visibleSeries.forEach(function(ser, si){
+        var v = ser.values[i];
+        var segH = (v/top)*ph;
+        if (segH <= 0) return;
+        var y0 = yCursor - segH;
+        var isTop = si === visibleSeries.length - 1;
+        var rectH = Math.max(segH - (si>0?gap:0), 0.5);
+        var rx = cx - barW/2;
+        var opacity = isProj ? 0.4 : 1;
+        if (isTop && rectH > 8){
+          el('path', {class:'bar-seg', d:roundedTopPath(rx,y0,barW,rectH), fill:ser.color, opacity:opacity}, svg);
+        } else {
+          el('rect', {class:'bar-seg', x:rx, y:y0, width:barW, height:rectH, fill:ser.color, opacity:opacity}, svg);
+        }
+        if (isProj){
+          el('rect', {x:rx, y:y0, width:barW, height:rectH, fill:'none', stroke:ser.color, 'stroke-width':1, 'stroke-dasharray':'2,2'}, svg);
+        }
+        yCursor = y0 - gap;
+      });
+    } else {
+      var visibleSeries = series.filter(function(s){ return !s.hidden; });
+      var groupW = barW * visibleSeries.length + gap*(visibleSeries.length-1);
+      visibleSeries.forEach(function(ser, si){
+        var v = ser.values[i];
+        var segH = (v/top)*ph;
+        var rx = cx - groupW/2 + si*(barW+gap);
+        var ry = margin.top + ph - segH;
+        var opacity = isProj ? 0.4 : 1;
+        if (segH > 8){
+          el('path', {class:'bar-seg', d:roundedTopPath(rx,ry,barW,segH), fill:ser.color, opacity:opacity}, svg);
+        } else {
+          el('rect', {class:'bar-seg', x:rx, y:ry, width:barW, height:Math.max(segH,0.5), fill:ser.color, opacity:opacity}, svg);
+        }
+        if (isProj){
+          el('rect', {x:rx, y:ry, width:barW, height:Math.max(segH,0.5), fill:'none', stroke:ser.color, 'stroke-width':1, 'stroke-dasharray':'2,2'}, svg);
+        }
+      });
+    }
+
+    var hit = el('rect', {class:'hit', x:margin.left+band*i, y:margin.top, width:band, height:ph}, svg);
+    hit.addEventListener('pointermove', function(ev){
+      var rows = series.filter(function(s){return !s.hidden;}).map(function(s){
+        return {label:s.name, value: opts.valueFmt ? opts.valueFmt(s.values[i]) : s.values[i], color:s.color};
+      });
+      if (opts.extraRows) rows = rows.concat(opts.extraRows(i));
+      var title = (opts.titleFmt ? opts.titleFmt(cat,i) : cat) + (isProj ? ' (projected)' : '');
+      showTooltip(ev.clientX, ev.clientY, title, rows);
+    });
+    hit.addEventListener('pointerleave', hideTooltip);
+  });
+
+  return svg;
+}
+
+/* ---------------- line chart ---------------- */
+function drawLineChart(container, opts){
+  container.innerHTML = "";
+  var W = opts.width || 1000, H = opts.height || 260;
+  var margin = {top:14, right:12, bottom:26, left:opts.leftMargin || 50};
+  var pw = W - margin.left - margin.right, ph = H - margin.top - margin.bottom;
+  var pts = opts.points;
+  var n = pts.length;
+  var maxVal = Math.max.apply(null, pts.map(function(p){return p.y;}).concat([0]));
+  var top = niceMax(maxVal*1.1 || 10);
+
+  var svg = el('svg', {viewBox:'0 0 '+W+' '+H}, container);
+  var ticks = 4;
+  for (var t=0;t<=ticks;t++){
+    var val = top*t/ticks;
+    var y = margin.top + ph - (val/top)*ph;
+    el('line', {class:'gridline', x1:margin.left, x2:W-margin.right, y1:y, y2:y}, svg);
+    var lbl = el('text', {x:margin.left-8, y:y+3, 'text-anchor':'end'}, svg);
+    lbl.textContent = opts.axisFmt ? opts.axisFmt(val) : Math.round(val);
+  }
+  el('line', {class:'baseline', x1:margin.left, x2:W-margin.right, y1:margin.top+ph, y2:margin.top+ph}, svg);
+
+  function xAt(i){ return n>1 ? margin.left + (pw*i/(n-1)) : margin.left+pw/2; }
+  function yAt(v){ return margin.top + ph - (v/top)*ph; }
+
+  var labelStep = Math.ceil(n/8);
+  pts.forEach(function(p,i){
+    if (i % labelStep === 0 || i === n-1){
+      var xl = el('text', {x:xAt(i), y:H-6, 'text-anchor':'middle'}, svg);
+      xl.textContent = opts.xFmt ? opts.xFmt(p.x) : p.x;
+    }
+  });
+
+  var line = 'M', area = 'M';
+  pts.forEach(function(p,i){
+    var x = xAt(i), y = yAt(p.y);
+    line += (i===0?'':'L') + x + ',' + y + ' ';
+    area += (i===0? x+','+(margin.top+ph)+' L'+x+','+y : 'L'+x+','+y) + ' ';
+  });
+  area += 'L'+xAt(n-1)+','+(margin.top+ph)+' Z';
+
+  el('path', {d:area, fill:opts.color, class:'area-fill'}, svg);
+  el('path', {d:line, class:'line-path', stroke:opts.color}, svg);
+
+  var lastX = xAt(n-1), lastY = yAt(pts[n-1].y);
+  el('circle', {cx:lastX, cy:lastY, r:4.5, fill:opts.color, class:'endmark'}, svg);
+
+  var cross = el('line', {class:'crosshair', x1:0,x2:0,y1:margin.top,y2:margin.top+ph, style:'display:none'}, svg);
+  var dot = el('circle', {r:4.5, fill:opts.color, class:'endmark', style:'display:none'}, svg);
+
+  var hit = el('rect', {class:'hit', x:margin.left, y:margin.top, width:pw, height:ph}, svg);
+  hit.addEventListener('pointermove', function(ev){
+    var loc = toLocal(svg, ev.clientX, ev.clientY);
+    var relX = loc.x - margin.left;
+    var idx = Math.round((relX/pw)*(n-1));
+    idx = Math.max(0, Math.min(n-1, idx));
+    var p = pts[idx];
+    var x = xAt(idx), y = yAt(p.y);
+    cross.setAttribute('x1', x); cross.setAttribute('x2', x); cross.style.display='block';
+    dot.setAttribute('cx', x); dot.setAttribute('cy', y); dot.style.display='block';
+    var rows = [{label: opts.yLabel||'Value', value: opts.valueFmt ? opts.valueFmt(p.y) : p.y, color: opts.color}];
+    if (opts.orders) rows.push({label:'Orders', value: fmtInt(opts.orders[idx])});
+    showTooltip(ev.clientX, ev.clientY, opts.titleFmt ? opts.titleFmt(p.x) : p.x, rows);
+  });
+  hit.addEventListener('pointerleave', function(){ hideTooltip(); cross.style.display='none'; dot.style.display='none'; });
+}
+
+function renderMeterList(container, items, colorVar){
+  var color = resolveColor(colorVar);
+  var max = Math.max.apply(null, items.map(function(i){return i.value;}).concat([1]));
+  var total = items.reduce(function(s,i){return s+i.value;},0) || 1;
+  container.innerHTML = '';
+  items.forEach(function(item){
+    var row = document.createElement('div'); row.className='meterrow';
+    var pct = (item.value/total*100);
+    row.innerHTML = '<div class="top"><span class="name">'+item.label+'</span><span class="val">'+fmtGBP(item.value)+' · '+pct.toFixed(1)+'%</span></div>'+
+      '<div class="track"><div class="fill" style="width:'+(item.value/max*100)+'%; background:'+color+'"></div></div>';
+    container.appendChild(row);
+  });
+}
+
+/* ================= FILTER STATE ================= */
+var filterFrom = 0, filterTo = N_MONTHS-1;
+function monthsInRange(){ return MONTHS.slice(filterFrom, filterTo+1); }
+function aggDict(months, key, order){
+  var out = {}; order.forEach(function(k){out[k]=0;});
+  months.forEach(function(m){ order.forEach(function(k){ out[k]+= (m[key][k]||0); }); });
+  return out;
+}
+function aggDispatch(months){
+  var out = {};
+  DATA.dispatchOrder.forEach(function(t){out[t]={orders:0,net_sales:0,refunds:0,revenue_after_refunds:0};});
+  months.forEach(function(m){
+    DATA.dispatchOrder.forEach(function(t){
+      var d = m.dispatch[t], o = out[t];
+      o.orders += d.orders; o.net_sales += d.net_sales; o.refunds += d.refunds; o.revenue_after_refunds += d.revenue_after_refunds;
+    });
+  });
+  return out;
+}
+function rangeLabel(){
+  if (filterFrom===0 && filterTo===N_MONTHS-1) return 'All time';
+  if (filterFrom===filterTo) return monthLabelLong(MONTHS[filterFrom].month);
+  return monthLabel(MONTHS[filterFrom].month) + ' – ' + monthLabel(MONTHS[filterTo].month);
+}
+
+/* ================= FILTER BAR UI ================= */
+(function setupFilterBar(){
+  var sel = document.getElementById('rangeSelect');
+  var opts = [
+    {v:'all', t:'All time (Aug 2025 – Aug 2026)'},
+    {v:'last3', t:'Last 3 months'},
+    {v:'last6', t:'Last 6 months'}
+  ];
+  var html = opts.map(function(o){return '<option value="'+o.v+'">'+o.t+'</option>';}).join('');
+  html += '<optgroup label="Single month">';
+  MONTHS.forEach(function(m){
+    html += '<option value="m:'+m.month+'">'+monthLabelLong(m.month)+'</option>';
+  });
+  html += '</optgroup><option value="custom">Custom range…</option>';
+  sel.innerHTML = html;
+
+  var fromSel = document.getElementById('customFrom');
+  var toSel = document.getElementById('customTo');
+  var monthOpts = MONTHS.map(function(m,i){return '<option value="'+i+'">'+monthLabel(m.month)+'</option>';}).join('');
+  fromSel.innerHTML = monthOpts;
+  toSel.innerHTML = monthOpts;
+  toSel.value = N_MONTHS-1;
+
+  function applyFromSelect(){
+    var v = sel.value;
+    var customWrap = document.getElementById('customWrap');
+    if (v === 'all'){ filterFrom=0; filterTo=N_MONTHS-1; customWrap.classList.add('hidden'); }
+    else if (v === 'last3'){ filterFrom=Math.max(0,N_MONTHS-3); filterTo=N_MONTHS-1; customWrap.classList.add('hidden'); }
+    else if (v === 'last6'){ filterFrom=Math.max(0,N_MONTHS-6); filterTo=N_MONTHS-1; customWrap.classList.add('hidden'); }
+    else if (v.indexOf('m:')===0){
+      var mo = v.slice(2);
+      var idx = MONTHS.findIndex(function(m){return m.month===mo;});
+      filterFrom=idx; filterTo=idx; customWrap.classList.add('hidden');
+    } else if (v === 'custom'){
+      customWrap.classList.remove('hidden');
+      filterFrom = parseInt(fromSel.value,10);
+      filterTo = parseInt(toSel.value,10);
+      if (filterFrom>filterTo){ var tmp=filterFrom; filterFrom=filterTo; filterTo=tmp; }
+    }
+    document.getElementById('rangePill').textContent = rangeLabel();
+    renderAll();
+  }
+  sel.addEventListener('change', applyFromSelect);
+  fromSel.addEventListener('change', applyFromSelect);
+  toSel.addEventListener('change', applyFromSelect);
+  document.getElementById('rangePill').textContent = rangeLabel();
+})();
+
+/* ================= KPI ROW ================= */
+function renderKPIs(){
+  var months = monthsInRange();
+  var sumNet = months.reduce(function(s,m){return s+m.net_sales;},0);
+  var sumOrders = months.reduce(function(s,m){return s+m.orders;},0);
+  var sumRAR = months.reduce(function(s,m){return s+m.revenue_after_refunds;},0);
+  var sumRevenue = months.reduce(function(s,m){return s+m.revenue;},0);
+  var sumRefunds = months.reduce(function(s,m){return s+m.refunds;},0);
+  var sumRpc = months.reduce(function(s,m){return s+m.rpc_orders;},0);
+  var sumVendor = months.reduce(function(s,m){return s+m.vendor_orders;},0);
+  var aov = sumOrders ? sumNet/sumOrders : 0;
+  var rpcPct = sumOrders ? sumRpc/sumOrders*100 : 0;
+  var vendorPct = sumOrders ? sumVendor/sumOrders*100 : 0;
+
+  var row = document.getElementById('kpiRow');
+  row.innerHTML = '';
+  function tile(html){ var d = document.createElement('div'); d.className='kpi'; d.innerHTML = html; row.appendChild(d); return d; }
+
+  tile('<div class="label">Net sales ('+rangeLabel()+')</div><div class="value">'+fmtGBP(sumNet)+'</div><div class="foot">across '+fmtInt(sumOrders)+' orders</div>');
+  tile('<div class="label">Avg order value</div><div class="value">'+fmtGBP(aov,2)+'</div><div class="foot">ex-tax, selected range</div>');
+
+  if (months.length >= 2){
+    var last = months[months.length-1], prev = months[months.length-2];
+    var deltaPct = prev.net_sales ? ((last.net_sales - prev.net_sales)/prev.net_sales*100) : 0;
+    var d3 = tile('<div class="label">'+monthLabel(last.month)+' net sales</div><div class="value">'+fmtGBP(last.net_sales)+'</div>');
+    var delta = document.createElement('div');
+    delta.className = 'delta ' + (deltaPct>=0?'up':'down');
+    delta.textContent = (deltaPct>=0?'▲ ':'▼ ') + Math.abs(deltaPct).toFixed(1) + '% vs ' + monthLabel(prev.month);
+    d3.appendChild(delta);
+  } else {
+    tile('<div class="label">'+monthLabel(months[0].month)+' orders</div><div class="value">'+fmtInt(months[0].orders)+'</div><div class="foot">'+fmtGBP(months[0].net_sales)+' net sales</div>');
+  }
+
+  var d4 = tile('<div class="label">RPC vs Vendors</div><div class="value">'+rpcPct.toFixed(0)+'% / '+vendorPct.toFixed(0)+'%</div>');
+  var split = document.createElement('div'); split.className='split';
+  split.innerHTML = '<i class="a" style="width:'+rpcPct+'%"></i><i class="b" style="width:'+vendorPct+'%"></i>';
+  d4.appendChild(split);
+  var key = document.createElement('div'); key.className='splitkey';
+  key.innerHTML = '<span>RPC</span><span>Vendors</span>';
+  d4.appendChild(key);
+
+  tile('<div class="label">Refund rate</div><div class="value" style="color:var(--good)">'+ (sumRevenue? (sumRefunds/sumRevenue*100).toFixed(2):'0.00') +'%</div><div class="foot">'+fmtGBP(sumRefunds)+' refunded</div>');
+
+  var partial = MONTHS[N_MONTHS-1];
+  var pTile = tile('<div class="label">This month (live)</div><div class="value">'+fmtGBP(partial.net_sales)+'</div><div class="foot">'+monthLabel(partial.month)+' 1–24, '+fmtInt(partial.orders)+' orders so far</div>');
+  pTile.classList.add('partial');
+}
+
+/* ================= TREND CHART ================= */
+var trendMetric = 'net_sales';
+var trendConfig = {
+  net_sales: {label:'Net sales', color:'var(--s1)', fmt:function(v){return fmtGBP(v);}, axisFmt:fmtCompactGBP},
+  orders:    {label:'Orders', color:'var(--s3)', fmt:fmtInt, axisFmt:function(v){return Math.round(v);}},
+  aov:       {label:'Avg order value', color:'var(--s2)', fmt:function(v){return fmtGBP(v,2);}, axisFmt:function(v){return '£'+v.toFixed(0);}},
+  discounts: {label:'Discounts given', color:'var(--s5)', fmt:function(v){return fmtGBP(v);}, axisFmt:fmtCompactGBP}
+};
+function renderTrend(){
+  var months = monthsInRange();
+  var cfg = trendConfig[trendMetric];
+  document.getElementById('trendTitle').textContent = (months.length>1?'Monthly ':'') + cfg.label.toLowerCase();
+  document.getElementById('trendSub').textContent = rangeLabel();
+  var cats = months.map(function(m){return m.month;});
+  var values = months.map(function(m){return m[trendMetric];});
+  drawBarChart(document.getElementById('trendChart'), {
+    categories: cats,
+    series: [{key:trendMetric, name:cfg.label, color: resolveColor(cfg.color), values: values}],
+    mode: 'single',
+    xFmt: monthLabel,
+    titleFmt: monthLabel,
+    valueFmt: cfg.fmt,
+    axisFmt: cfg.axisFmt,
+    ariaLabel: 'Monthly ' + cfg.label,
+    extraRows: function(i){
+      var m = months[i];
+      var rows = [];
+      if (trendMetric !== 'orders') rows.push({label:'Orders', value: fmtInt(m.orders)});
+      if (trendMetric !== 'net_sales') rows.push({label:'Net sales', value: fmtGBP(m.net_sales)});
+      return rows;
+    }
+  });
+  renderTrendTable(months);
+}
+function renderTrendTable(months){
+  var wrap = document.getElementById('trendTableWrap');
+  var html = '<table class="datatable"><thead><tr><th>Month</th><th>Orders</th><th>Net sales</th><th>Avg order</th><th>Discounts</th></tr></thead><tbody>';
+  months.forEach(function(m){
+    html += '<tr><td>'+monthLabel(m.month)+'</td><td>'+fmtInt(m.orders)+'</td><td>'+fmtGBP(m.net_sales)+'</td><td>'+fmtGBP(m.aov,2)+'</td><td>'+fmtGBP(m.discounts)+'</td></tr>';
+  });
+  html += '</tbody></table>';
+  wrap.innerHTML = html;
+}
+document.getElementById('metricToggle').addEventListener('click', function(ev){
+  var btn = ev.target.closest('button'); if (!btn) return;
+  this.querySelectorAll('button').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  trendMetric = btn.dataset.metric;
+  renderTrend();
+});
+document.getElementById('trendTableBtn').addEventListener('click', function(){
+  var wrap = document.getElementById('trendTableWrap');
+  var chart = document.getElementById('trendChart');
+  var show = wrap.classList.contains('hidden');
+  wrap.classList.toggle('hidden', !show);
+  chart.classList.toggle('hidden', show);
+  this.textContent = show ? 'View as chart' : 'View as table';
+  this.setAttribute('aria-expanded', show);
+});
+
+/* ================= CHANNEL MIX CHART ================= */
+var channelView = 'grouped';
+var sourceColorVars = ['var(--s1)','var(--s2)','var(--s3)','var(--s4)','var(--s5)'];
+function channelSeriesFor(view, months){
+  if (view === 'grouped'){
+    return [
+      {key:'rpc', name:'RPC (Flipdish + In store)', color: resolveColor('var(--s1)'), values: months.map(function(m){return m.rpc_orders;})},
+      {key:'vendor', name:'Vendors (Uber Eats, Deliveroo, Just Eat)', color: resolveColor('var(--s3)'), values: months.map(function(m){return m.vendor_orders;})}
+    ];
+  }
+  return DATA.sourceOrder.map(function(name, idx){
+    return {key:name, name:name, color: resolveColor(sourceColorVars[idx]), values: months.map(function(m){return m.sources[name];})};
+  });
+}
+function renderChannelLegend(series){
+  var legend = document.getElementById('channelLegend');
+  legend.innerHTML = '';
+  series.forEach(function(s){
+    var b = document.createElement('button');
+    var sw = document.createElement('span'); sw.className='sw'; sw.style.background = s.color;
+    var lbl = document.createElement('span'); lbl.textContent = s.name;
+    b.appendChild(sw); b.appendChild(lbl);
+    b.addEventListener('click', function(){
+      s.hidden = !s.hidden;
+      b.classList.toggle('off', !!s.hidden);
+      renderChannel(true, series);
+    });
+    legend.appendChild(b);
+  });
+}
+function renderChannel(skipLegend, keepSeries){
+  var months = monthsInRange();
+  var cats = months.map(function(m){return m.month;});
+  var series = keepSeries || channelSeriesFor(channelView, months);
+  drawBarChart(document.getElementById('channelChart'), {
+    categories: cats,
+    series: series,
+    mode: 'stacked',
+    xFmt: monthLabel,
+    titleFmt: monthLabel,
+    valueFmt: function(v){return fmtInt(v)+' orders';},
+    axisFmt: function(v){return Math.round(v);},
+    ariaLabel: 'Monthly order mix'
+  });
+  if (!skipLegend) renderChannelLegend(series);
+  renderChannelTable(months, series);
+}
+function renderChannelTable(months, series){
+  var wrap = document.getElementById('channelTableWrap');
+  var html = '<table class="datatable"><thead><tr><th>Month</th>';
+  series.forEach(function(s){ html += '<th>'+s.name+'</th>'; });
+  html += '<th>Total</th></tr></thead><tbody>';
+  months.forEach(function(m, i){
+    html += '<tr><td>'+monthLabel(m.month)+'</td>';
+    series.forEach(function(s){ html += '<td>'+fmtInt(s.values[i])+'</td>'; });
+    html += '<td>'+fmtInt(m.orders)+'</td></tr>';
+  });
+  html += '</tbody></table>';
+  wrap.innerHTML = html;
+}
+document.getElementById('channelToggle').addEventListener('click', function(ev){
+  var btn = ev.target.closest('button'); if (!btn) return;
+  this.querySelectorAll('button').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  channelView = btn.dataset.view;
+  renderChannel();
+});
+document.getElementById('channelTableBtn').addEventListener('click', function(){
+  var wrap = document.getElementById('channelTableWrap');
+  var chart = document.getElementById('channelChart');
+  var show = wrap.classList.contains('hidden');
+  wrap.classList.toggle('hidden', !show);
+  chart.classList.toggle('hidden', show);
+  this.textContent = show ? 'View as chart' : 'View as table';
+  this.setAttribute('aria-expanded', show);
+});
+
+/* ================= WEEKLY LINE CHART ================= */
+function renderWeekly(){
+  var fromDate = MONTHS[filterFrom].month + '-01';
+  var toMonthObj = new Date(MONTHS[filterTo].month + '-01T00:00:00Z');
+  toMonthObj.setUTCMonth(toMonthObj.getUTCMonth()+1);
+  var toDate = toMonthObj.toISOString().slice(0,10);
+  var weeks = DATA.weekly.filter(function(w){ return w.week >= fromDate && w.week < toDate; });
+  if (weeks.length === 0) weeks = DATA.weekly;
+  document.getElementById('weeklySub').textContent = weeks.length + ' week' + (weeks.length===1?'':'s') + ' — ' + rangeLabel();
+  var pts = weeks.map(function(w){return {x:w.week, y:w.net_sales};});
+  var orders = weeks.map(function(w){return w.orders;});
+  drawLineChart(document.getElementById('weeklyChart'), {
+    points: pts, orders: orders, color: resolveColor('var(--s1)'), yLabel: 'Net sales',
+    valueFmt: function(v){return fmtGBP(v);}, axisFmt: fmtCompactGBP,
+    xFmt: function(w){ var d=new Date(w); var months=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]; return months[d.getUTCMonth()]+" '"+String(d.getUTCFullYear()).slice(2); },
+    titleFmt: function(w){ var d=new Date(w); return 'Week of ' + d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}); }
+  });
+}
+
+/* ================= DAY OF WEEK / HOUR OF DAY ================= */
+function renderDowHod(){
+  var months = monthsInRange();
+  var dow = aggDict(months, 'dow', DATA.dowOrder);
+  var hod = aggDict(months, 'hod', Array.from({length:24},function(_,i){return String(i);}));
+  var hodTrim = [];
+  for (var h=0; h<24; h++){ if (hod[String(h)] > 0 || (h>=11 && h<=23)) hodTrim.push(h); }
+
+  drawBarChart(document.getElementById('dowChart'), {
+    categories: DATA.dowOrder,
+    series: [{name:'Net sales', color: resolveColor('var(--s1)'), values: DATA.dowOrder.map(function(d){return dow[d];})}],
+    mode:'single', xFmt: function(d){return d.slice(0,3);}, titleFmt: function(d){return d;},
+    valueFmt: function(v){return fmtGBP(v);}, axisFmt: fmtCompactGBP, barMax: 34,
+    ariaLabel: 'Net sales by day of week'
+  });
+  drawBarChart(document.getElementById('hodChart'), {
+    categories: hodTrim,
+    series: [{name:'Net sales', color: resolveColor('var(--s2)'), values: hodTrim.map(function(h){return hod[String(h)];})}],
+    mode:'single', xFmt: function(h){return (h%12===0?12:h%12)+(h<12?'a':'p');}, titleFmt: function(h){return h+':00–'+h+':59';},
+    valueFmt: function(v){return fmtGBP(v);}, axisFmt: fmtCompactGBP, barMax: 20,
+    ariaLabel: 'Net sales by hour of day'
+  });
+}
+
+/* ================= ORDER TYPE & TAKE-HOME ================= */
+var dispatchColorVars = ['var(--s1)','var(--s2)','var(--s3)','var(--s4)'];
+function renderDispatch(){
+  var months = monthsInRange();
+  var series = DATA.dispatchOrder.map(function(t, idx){
+    return {name:t, color: resolveColor(dispatchColorVars[idx]), values: months.map(function(m){return m.dispatch[t].net_sales;})};
+  });
+  drawBarChart(document.getElementById('dispatchChart'), {
+    categories: months.map(function(m){return m.month;}),
+    series: series, mode:'stacked', xFmt: monthLabel, titleFmt: monthLabel,
+    valueFmt: function(v){return fmtGBP(v);}, axisFmt: fmtCompactGBP,
+    ariaLabel:'Net sales by dispatch type'
+  });
+
+  var agg = aggDispatch(months);
+  var total = 0; DATA.dispatchOrder.forEach(function(t){ total += agg[t].revenue_after_refunds; });
+  var rows = DATA.dispatchOrder.map(function(t,idx){ return {t:t, d:agg[t], color: resolveColor(dispatchColorVars[idx])}; })
+    .sort(function(a,b){ return b.d.net_sales - a.d.net_sales; });
+  var html = '<table class="datatable"><thead><tr><th>Dispatch type</th><th>Orders</th><th>Net sales</th><th>Refunds</th><th>Take-home</th><th>Share</th></tr></thead><tbody>';
+  rows.forEach(function(r){
+    if (r.d.orders===0) return;
+    var share = total ? r.d.revenue_after_refunds/total*100 : 0;
+    html += '<tr><td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:'+r.color+';margin-right:7px;"></span>'+r.t+'</td>'+
+      '<td>'+fmtInt(r.d.orders)+'</td><td>'+fmtGBP(r.d.net_sales)+'</td><td>'+fmtGBP(r.d.refunds)+'</td><td>'+fmtGBP(r.d.revenue_after_refunds)+'</td><td>'+share.toFixed(1)+'%</td></tr>';
+  });
+  html += '</tbody></table>';
+  document.getElementById('dispatchTableWrap').innerHTML = html;
+
+  renderMeterList(document.getElementById('paymentList'),
+    DATA.paymentOrder.map(function(p){ return {label:p, value: aggDict(months,'payment',DATA.paymentOrder)[p]}; })
+      .filter(function(i){return i.value>0;}).sort(function(a,b){return b.value-a.value;}),
+    'var(--s3)');
+}
+document.getElementById('dispatchTableBtn').addEventListener('click', function(){
+  var wrap = document.getElementById('dispatchTableWrap');
+  var show = !wrap.classList.contains('hidden');
+  wrap.classList.toggle('hidden');
+  this.textContent = show ? 'View as table' : 'Hide table';
+  this.setAttribute('aria-expanded', !show);
+});
+
+/* ================= REFUNDS & DISCOUNTS ================= */
+function renderRD(){
+  var months = monthsInRange();
+  var legend = document.getElementById('rdLegend');
+  var discColor = resolveColor('var(--s5)');
+  var refColor = resolveColor('var(--s2)');
+  legend.innerHTML =
+    '<span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-secondary)"><span class="sw" style="background:'+discColor+'"></span>Discounts given</span>'+
+    '<span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-secondary)"><span class="sw" style="background:'+refColor+'"></span>Refunds issued</span>';
+  document.getElementById('rdSub').textContent = rangeLabel();
+  drawBarChart(document.getElementById('rdChart'), {
+    categories: months.map(function(m){return m.month;}),
+    series: [
+      {name:'Discounts', color: discColor, values: months.map(function(m){return m.discounts;})},
+      {name:'Refunds', color: refColor, values: months.map(function(m){return m.refunds;})}
+    ],
+    mode:'grouped', xFmt: monthLabel, titleFmt: monthLabel,
+    valueFmt: function(v){return fmtGBP(v);}, axisFmt: fmtCompactGBP,
+    ariaLabel:'Discounts and refunds by month'
+  });
+}
+
+/* ================= FORECAST TO DEC 2026 ================= */
+function computeForecast(){
+  var byMonth = {}; MONTHS.forEach(function(m){byMonth[m.month]=m;});
+  var last = MONTHS[N_MONTHS-1]; // 2026-08, partial
+  var dayOfMonth = 24; // data through the 24th
+  var daysInAug = 31;
+  var lastFullEst = last.net_sales / dayOfMonth * daysInAug;
+  var aug25 = byMonth['2025-08'];
+  var yoy = aug25 && aug25.net_sales ? lastFullEst / aug25.net_sales : 1;
+
+  var targets = ['2025-09','2025-10','2025-11','2025-12'].map(function(mo, idx){
+    var src = byMonth[mo];
+    var projMonth = '2026-' + ['09','10','11','12'][idx];
+    return {month: projMonth, net_sales: src ? src.net_sales * yoy : 0, sourceMonth: mo};
+  });
+  return {yoy: yoy, lastFullEst: lastFullEst, targets: targets};
+}
+function renderForecast(){
+  var fc = computeForecast();
+  var stats = document.getElementById('forecastStats');
+  stats.innerHTML =
+    '<div class="s"><div class="l">YoY trend (Aug)</div><div class="v" style="color:'+(fc.yoy>=1?'var(--good)':'var(--bad)')+'">'+(fc.yoy>=1?'+':'')+((fc.yoy-1)*100).toFixed(1)+'%</div></div>'+
+    '<div class="s"><div class="l">Aug 2026 full-month est.</div><div class="v">'+fmtGBP(fc.lastFullEst)+'</div></div>'+
+    '<div class="s"><div class="l">Projected Sep–Dec 2026</div><div class="v">'+fmtGBP(fc.targets.reduce(function(s,t){return s+t.net_sales;},0))+'</div></div>'+
+    '<div class="s"><div class="l">Projected full year to Dec</div><div class="v">'+fmtGBP(MONTHS.reduce(function(s,m){return s+m.net_sales;},0) + fc.targets.reduce(function(s,t){return s+t.net_sales;},0))+'</div></div>';
+
+  var actualMonths = MONTHS.map(function(m){return m.month;});
+  var cats = actualMonths.concat(fc.targets.map(function(t){return t.month;}));
+  var values = MONTHS.map(function(m){return m.net_sales;}).concat(fc.targets.map(function(t){return t.net_sales;}));
+  var projFlags = actualMonths.map(function(){return false;}).concat(fc.targets.map(function(){return true;}));
+  var color = resolveColor('var(--s1)');
+
+  var legend = document.getElementById('forecastLegend');
+  legend.innerHTML =
+    '<span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-secondary)"><span class="sw" style="background:'+color+'"></span>Actual</span>'+
+    '<span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-secondary)"><span class="sw dashed" style="color:'+color+'"></span>Projected</span>';
+
+  drawBarChart(document.getElementById('forecastChart'), {
+    categories: cats,
+    series: [{name:'Net sales', color: color, values: values}],
+    mode:'single', xFmt: monthLabel, titleFmt: monthLabel,
+    valueFmt: function(v){return fmtGBP(v);}, axisFmt: fmtCompactGBP,
+    projected: projFlags,
+    ariaLabel:'Net sales, actual and projected to December 2026'
+  });
+
+  document.getElementById('forecastCaveat').innerHTML =
+    'Projected months (Sep–Dec 2026) use last year\'s equivalent month, scaled by this year\'s year-over-year change — the only directly comparable month so far is August (' +
+    (fc.yoy>=1?'up ':'down ') + Math.abs((fc.yoy-1)*100).toFixed(1) + '% vs Aug 2025, based on the daily run-rate through the 24th). ' +
+    'This is a simple trend estimate, not a guarantee — it will move as more of the year comes in.';
+  return fc;
+}
+
+/* ================= MARKETING SCENARIO ================= */
+var scenarioState = { leaflet: 4, digital: 8, field: 5 };
+function setupSliders(){
+  var wrap = document.getElementById('sliders');
+  var defs = [
+    {key:'leaflet', name:'Leaflet drops', note:'Local door-drop flyers, typical response uplift for takeaway/delivery', min:0, max:15},
+    {key:'digital', name:'Digital marketing', note:'Paid social & search ads targeted at the local area', min:0, max:20},
+    {key:'field', name:'Field marketing', note:'Sampling, local partnerships, in-person outreach — the Domino\'s local-store-marketing playbook', min:0, max:15}
+  ];
+  wrap.innerHTML = '';
+  defs.forEach(function(d){
+    var row = document.createElement('div'); row.className='slider-row';
+    row.innerHTML =
+      '<div class="srow-top"><span class="sname">'+d.name+'<small>'+d.note+'</small></span><span class="sval" id="sval-'+d.key+'">+'+scenarioState[d.key]+'%</span></div>'+
+      '<input type="range" min="'+d.min+'" max="'+d.max+'" value="'+scenarioState[d.key]+'" id="srange-'+d.key+'">';
+    wrap.appendChild(row);
+    row.querySelector('input').addEventListener('input', function(ev){
+      scenarioState[d.key] = parseInt(ev.target.value,10);
+      document.getElementById('sval-'+d.key).textContent = '+' + scenarioState[d.key] + '%';
+      renderScenario();
+    });
+  });
+}
+function renderScenario(){
+  var fc = computeForecast();
+  var totalUplift = (scenarioState.leaflet + scenarioState.digital + scenarioState.field) / 100;
+  var cats = fc.targets.map(function(t){return t.month;});
+  var baseline = fc.targets.map(function(t){return t.net_sales;});
+  var withMkt = baseline.map(function(v){return v * (1+totalUplift);});
+  var baseColor = resolveColor('var(--s1)');
+  var mktColor = resolveColor('var(--accent)');
+
+  var legend = document.getElementById('scenarioLegend');
+  legend.innerHTML =
+    '<span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-secondary)"><span class="sw" style="background:'+baseColor+'"></span>Baseline forecast</span>'+
+    '<span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-secondary)"><span class="sw" style="background:'+mktColor+'"></span>With marketing investment</span>';
+
+  drawBarChart(document.getElementById('scenarioChart'), {
+    categories: cats,
+    series: [
+      {name:'Baseline forecast', color: baseColor, values: baseline},
+      {name:'With marketing (+'+(totalUplift*100).toFixed(0)+'%)', color: mktColor, values: withMkt}
+    ],
+    mode:'grouped', xFmt: monthLabel, titleFmt: monthLabel,
+    valueFmt: function(v){return fmtGBP(v);}, axisFmt: fmtCompactGBP,
+    ariaLabel:'Baseline vs with-marketing sales scenario, Sep to Dec 2026'
+  });
+
+  var baseTotal = baseline.reduce(function(s,v){return s+v;},0);
+  var mktTotal = withMkt.reduce(function(s,v){return s+v;},0);
+  var delta = mktTotal - baseTotal;
+  document.getElementById('scenarioResult').innerHTML =
+    '<div><div class="big">+'+fmtGBP(delta)+'</div><div class="lbl">potential extra net sales, Sep–Dec 2026, at +'+(totalUplift*100).toFixed(0)+'% combined uplift</div></div>'+
+    '<div><div class="big">'+fmtGBP(mktTotal)+'</div><div class="lbl">projected total with marketing, vs '+fmtGBP(baseTotal)+' baseline</div></div>';
+}
+
+/* ================= RENDER ALL ================= */
+function renderAll(){
+  renderKPIs();
+  renderTrend();
+  renderChannel();
+  renderWeekly();
+  renderDowHod();
+  renderDispatch();
+  renderRD();
+}
+renderAll();
+setupSliders();
+renderForecast();
+renderScenario();
+
+window.addEventListener('resize', function(){
+  renderTrend(); renderChannel(true); renderDowHod(); renderDispatch(); renderRD(); renderForecast(); renderScenario();
+});
+
+})();
+</script>
