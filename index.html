@@ -8,18 +8,18 @@
 <style>
   :root{
     color-scheme: light;
-    --surface-page:   #f6f4ee;
-    --surface-card:   #fcfcfb;
+    --surface-page:   #f6f7f9;
+    --surface-card:   #ffffff;
     --surface-raised: #ffffff;
-    --ink-primary:    #201a15;
-    --ink-secondary:  #5c554c;
-    --ink-muted:      #8c8579;
-    --grid:           #e4e1d7;
-    --baseline:       #c7c2b4;
-    --border:         rgba(24,18,12,0.10);
+    --ink-primary:    #14161a;
+    --ink-secondary:  #545b66;
+    --ink-muted:      #88909a;
+    --grid:           #ecedf1;
+    --baseline:       #d4d7dd;
+    --border:         rgba(15,23,42,0.08);
     --accent:         #a8402a;
     --accent-strong:  #7f2f1f;
-    --accent-wash:    rgba(168,64,42,0.09);
+    --accent-wash:    rgba(168,64,42,0.08);
     --good:           #0ca30c;
     --bad:            #d03b3b;
     --s1: #2a78d6; /* blue    */
@@ -27,7 +27,7 @@
     --s3: #1baf7a; /* aqua    */
     --s4: #eda100; /* yellow  */
     --s5: #e87ba4; /* magenta */
-    --shadow: 0 1px 2px rgba(24,18,12,0.04), 0 8px 24px -12px rgba(24,18,12,0.14);
+    --shadow: 0 1px 2px rgba(15,23,42,0.03), 0 8px 24px -12px rgba(15,23,42,0.10);
   }
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
@@ -173,6 +173,7 @@
   .chartbox{ position:relative; width:100%; overflow:visible; }
   .chartbox svg{ display:block; width:100%; height:auto; overflow:visible; }
   .chartbox svg text{ font-family:"IBM Plex Mono",monospace; fill:var(--ink-muted); font-size:10.5px; }
+  .chartbox svg text.point-label{ fill:var(--ink-primary); font-weight:600; font-size:11px; }
   .gridline{ stroke:var(--grid); stroke-width:1; shape-rendering:crispEdges; }
   .baseline{ stroke:var(--baseline); stroke-width:1; shape-rendering:crispEdges; }
   .hit{ fill:transparent; cursor:pointer; }
@@ -213,7 +214,7 @@
   .meterrow .track{ height:10px; border-radius:5px; background:var(--grid); overflow:hidden; }
   .meterrow .fill{ height:100%; border-radius:5px; }
 
-  .tablewrap{ overflow-x:auto; margin-top:10px; }
+  .tablewrap{ overflow-x:auto; margin-top:10px; -webkit-overflow-scrolling:touch; }
   table.datatable{ width:100%; border-collapse:collapse; font-size:12.5px; }
   table.datatable th, table.datatable td{ text-align:right; padding:7px 10px; border-bottom:1px solid var(--border); font-variant-numeric:tabular-nums; font-family:"IBM Plex Mono",monospace; white-space:nowrap; }
   table.datatable th:first-child, table.datatable td:first-child{ text-align:left; font-family:"IBM Plex Sans",sans-serif; }
@@ -652,14 +653,16 @@ function drawBarChart(container, opts){
     }
 
     var hit = el('rect', {class:'hit', x:margin.left+band*i, y:margin.top, width:band, height:ph}, svg);
-    hit.addEventListener('pointermove', function(ev){
+    function handleBarPoint(ev){
       var rows = series.filter(function(s){return !s.hidden;}).map(function(s){
         return {label:s.name, value: opts.valueFmt ? opts.valueFmt(s.values[i]) : s.values[i], color:s.color};
       });
       if (opts.extraRows) rows = rows.concat(opts.extraRows(i));
       var title = (opts.titleFmt ? opts.titleFmt(cat,i) : cat) + (isProj ? ' (projected)' : '');
       showTooltip(ev.clientX, ev.clientY, title, rows);
-    });
+    }
+    hit.addEventListener('pointermove', handleBarPoint);
+    hit.addEventListener('pointerdown', handleBarPoint);
     hit.addEventListener('pointerleave', hideTooltip);
   });
 
@@ -670,14 +673,15 @@ function drawBarChart(container, opts){
 function drawLineChart(container, opts){
   container.innerHTML = "";
   var W = opts.width || 1000, H = opts.height || 260;
-  var margin = {top:14, right:12, bottom:26, left:opts.leftMargin || 50};
+  var margin = {top:18, right:14, bottom:26, left:opts.leftMargin || 50};
   var pw = W - margin.left - margin.right, ph = H - margin.top - margin.bottom;
   var pts = opts.points;
   var n = pts.length;
+  var splitIndex = opts.splitIndex === undefined ? n : opts.splitIndex; // index where projected segment starts
   var maxVal = Math.max.apply(null, pts.map(function(p){return p.y;}).concat([0]));
   var top = niceMax(maxVal*1.1 || 10);
 
-  var svg = el('svg', {viewBox:'0 0 '+W+' '+H}, container);
+  var svg = el('svg', {viewBox:'0 0 '+W+' '+H, role:'img', 'aria-label':opts.ariaLabel||''}, container);
   var ticks = 4;
   for (var t=0;t<=ticks;t++){
     var val = top*t/ticks;
@@ -693,31 +697,55 @@ function drawLineChart(container, opts){
 
   var labelStep = Math.ceil(n/8);
   pts.forEach(function(p,i){
-    if (i % labelStep === 0 || i === n-1){
+    if (i % labelStep === 0 || i === n-1 || (splitIndex<n && i===splitIndex)){
       var xl = el('text', {x:xAt(i), y:H-6, 'text-anchor':'middle'}, svg);
       xl.textContent = opts.xFmt ? opts.xFmt(p.x) : p.x;
     }
   });
 
-  var line = 'M', area = 'M';
-  pts.forEach(function(p,i){
-    var x = xAt(i), y = yAt(p.y);
-    line += (i===0?'':'L') + x + ',' + y + ' ';
-    area += (i===0? x+','+(margin.top+ph)+' L'+x+','+y : 'L'+x+','+y) + ' ';
-  });
-  area += 'L'+xAt(n-1)+','+(margin.top+ph)+' Z';
+  function pathFor(from, to){
+    var d = '';
+    for (var i=from; i<=to; i++){
+      var x = xAt(i), y = yAt(pts[i].y);
+      d += (i===from?'M':'L') + x + ',' + y + ' ';
+    }
+    return d;
+  }
+  function areaFor(from, to){
+    var d = 'M'+xAt(from)+','+(margin.top+ph)+' ';
+    for (var i=from; i<=to; i++){ d += 'L'+xAt(i)+','+yAt(pts[i].y)+' '; }
+    d += 'L'+xAt(to)+','+(margin.top+ph)+' Z';
+    return d;
+  }
 
-  el('path', {d:area, fill:opts.color, class:'area-fill'}, svg);
-  el('path', {d:line, class:'line-path', stroke:opts.color}, svg);
+  var hasProjected = splitIndex < n-1;
+  var actualEnd = hasProjected ? splitIndex : n-1;
 
-  var lastX = xAt(n-1), lastY = yAt(pts[n-1].y);
-  el('circle', {cx:lastX, cy:lastY, r:4.5, fill:opts.color, class:'endmark'}, svg);
+  el('path', {d:areaFor(0, actualEnd), fill:opts.color, class:'area-fill'}, svg);
+  el('path', {d:pathFor(0, actualEnd), class:'line-path', stroke:opts.color}, svg);
+
+  if (hasProjected){
+    el('path', {d:areaFor(actualEnd, n-1), fill:opts.color, class:'area-fill', opacity:0.5}, svg);
+    el('path', {d:pathFor(actualEnd, n-1), class:'line-path', stroke:opts.color, 'stroke-dasharray':'5,4', opacity:0.7}, svg);
+    for (var pi = actualEnd; pi < n; pi++){
+      var isProj = pi > actualEnd;
+      el('circle', {cx:xAt(pi), cy:yAt(pts[pi].y), r: isProj?4:4.5, fill: isProj?resolveColor('var(--surface-card)'):opts.color, stroke:opts.color, 'stroke-width':2}, svg);
+      if (opts.pointLabel){
+        var lblY = yAt(pts[pi].y) - 12;
+        var t2 = el('text', {x:xAt(pi), y:lblY, 'text-anchor':'middle', class:'point-label'}, svg);
+        t2.textContent = opts.pointLabel(pts[pi], pi);
+      }
+    }
+  } else {
+    var lastX = xAt(n-1), lastY = yAt(pts[n-1].y);
+    el('circle', {cx:lastX, cy:lastY, r:4.5, fill:opts.color, class:'endmark'}, svg);
+  }
 
   var cross = el('line', {class:'crosshair', x1:0,x2:0,y1:margin.top,y2:margin.top+ph, style:'display:none'}, svg);
-  var dot = el('circle', {r:4.5, fill:opts.color, class:'endmark', style:'display:none'}, svg);
+  var dot = el('circle', {r:5, fill:opts.color, class:'endmark', style:'display:none'}, svg);
 
   var hit = el('rect', {class:'hit', x:margin.left, y:margin.top, width:pw, height:ph}, svg);
-  hit.addEventListener('pointermove', function(ev){
+  function handlePoint(ev){
     var loc = toLocal(svg, ev.clientX, ev.clientY);
     var relX = loc.x - margin.left;
     var idx = Math.round((relX/pw)*(n-1));
@@ -728,8 +756,11 @@ function drawLineChart(container, opts){
     dot.setAttribute('cx', x); dot.setAttribute('cy', y); dot.style.display='block';
     var rows = [{label: opts.yLabel||'Value', value: opts.valueFmt ? opts.valueFmt(p.y) : p.y, color: opts.color}];
     if (opts.orders) rows.push({label:'Orders', value: fmtInt(opts.orders[idx])});
-    showTooltip(ev.clientX, ev.clientY, opts.titleFmt ? opts.titleFmt(p.x) : p.x, rows);
-  });
+    var title = (opts.titleFmt ? opts.titleFmt(p.x) : p.x) + (idx > actualEnd ? ' (projected)' : '');
+    showTooltip(ev.clientX, ev.clientY, title, rows);
+  }
+  hit.addEventListener('pointermove', handlePoint);
+  hit.addEventListener('pointerdown', handlePoint);
   hit.addEventListener('pointerleave', function(){ hideTooltip(); cross.style.display='none'; dot.style.display='none'; });
 }
 
@@ -775,17 +806,19 @@ function rangeLabel(){
 /* ================= FILTER BAR UI ================= */
 (function setupFilterBar(){
   var sel = document.getElementById('rangeSelect');
-  var opts = [
-    {v:'all', t:'All time (Aug 2025 – Aug 2026)'},
-    {v:'last3', t:'Last 3 months'},
-    {v:'last6', t:'Last 6 months'}
-  ];
-  var html = opts.map(function(o){return '<option value="'+o.v+'">'+o.t+'</option>';}).join('');
-  html += '<optgroup label="Single month">';
-  MONTHS.forEach(function(m){
-    html += '<option value="m:'+m.month+'">'+monthLabelLong(m.month)+'</option>';
-  });
-  html += '</optgroup><option value="custom">Custom range…</option>';
+  var html = '<option value="all">All time (Aug 2025 – Aug 2026)</option>';
+  html += '<optgroup label="Month (most recent first)">';
+  for (var mi = N_MONTHS-1; mi >= 0; mi--){
+    var mm = MONTHS[mi];
+    var tag = mi === N_MONTHS-1 ? ' — last month' : mi === N_MONTHS-2 ? ' — month before' : '';
+    html += '<option value="m:'+mm.month+'">'+monthLabelLong(mm.month)+tag+'</option>';
+  }
+  html += '</optgroup>';
+  html += '<optgroup label="Rolling range">';
+  html += '<option value="last3">Last 3 months</option>';
+  html += '<option value="last6">Last 6 months</option>';
+  html += '</optgroup>';
+  html += '<option value="custom">Custom range…</option>';
   sel.innerHTML = html;
 
   var fromSel = document.getElementById('customFrom');
@@ -841,16 +874,25 @@ function renderKPIs(){
   tile('<div class="label">Net sales ('+rangeLabel()+')</div><div class="value">'+fmtGBP(sumNet)+'</div><div class="foot">across '+fmtInt(sumOrders)+' orders</div>');
   tile('<div class="label">Avg order value</div><div class="value">'+fmtGBP(aov,2)+'</div><div class="foot">ex-tax, selected range</div>');
 
-  if (months.length >= 2){
-    var last = months[months.length-1], prev = months[months.length-2];
+  // The current month (last in MONTHS) is always partial — never use it as one side
+  // of a month-over-month % comparison, or the delta misleadingly reads as a big drop.
+  var isPartial = MONTHS[N_MONTHS-1].month;
+  var comparable = months.filter(function(m){ return m.month !== isPartial; });
+
+  if (comparable.length >= 2){
+    var last = comparable[comparable.length-1], prev = comparable[comparable.length-2];
     var deltaPct = prev.net_sales ? ((last.net_sales - prev.net_sales)/prev.net_sales*100) : 0;
     var d3 = tile('<div class="label">'+monthLabel(last.month)+' net sales</div><div class="value">'+fmtGBP(last.net_sales)+'</div>');
     var delta = document.createElement('div');
     delta.className = 'delta ' + (deltaPct>=0?'up':'down');
     delta.textContent = (deltaPct>=0?'▲ ':'▼ ') + Math.abs(deltaPct).toFixed(1) + '% vs ' + monthLabel(prev.month);
     d3.appendChild(delta);
+  } else if (months.length === 1 && months[0].month === isPartial){
+    tile('<div class="label">'+monthLabel(months[0].month)+' orders (partial)</div><div class="value">'+fmtInt(months[0].orders)+'</div><div class="foot">'+fmtGBP(months[0].net_sales)+' net sales so far, through the 24th</div>');
+  } else if (comparable.length === 1){
+    tile('<div class="label">'+monthLabel(comparable[0].month)+' orders</div><div class="value">'+fmtInt(comparable[0].orders)+'</div><div class="foot">'+fmtGBP(comparable[0].net_sales)+' net sales</div>');
   } else {
-    tile('<div class="label">'+monthLabel(months[0].month)+' orders</div><div class="value">'+fmtInt(months[0].orders)+'</div><div class="foot">'+fmtGBP(months[0].net_sales)+' net sales</div>');
+    tile('<div class="label">Orders</div><div class="value">'+fmtInt(sumOrders)+'</div><div class="foot">no complete month in range</div>');
   }
 
   var d4 = tile('<div class="label">RPC vs Vendors</div><div class="value">'+rpcPct.toFixed(0)+'% / '+vendorPct.toFixed(0)+'%</div>');
@@ -1193,12 +1235,18 @@ function renderForecast(){
     '<span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-secondary)"><span class="sw" style="background:'+color+'"></span>Actual</span>'+
     '<span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-secondary)"><span class="sw dashed" style="color:'+color+'"></span>Projected</span>';
 
-  drawBarChart(document.getElementById('forecastChart'), {
-    categories: cats,
-    series: [{name:'Net sales', color: color, values: values}],
-    mode:'single', xFmt: monthLabel, titleFmt: monthLabel,
-    valueFmt: function(v){return fmtGBP(v);}, axisFmt: fmtCompactGBP,
-    projected: projFlags,
+  var points = cats.map(function(mo, i){ return {x: mo, y: values[i]}; });
+  drawLineChart(document.getElementById('forecastChart'), {
+    points: points,
+    splitIndex: actualMonths.length - 1,
+    color: color,
+    yLabel: 'Net sales',
+    height: 280,
+    valueFmt: function(v){return fmtGBP(v);},
+    axisFmt: fmtCompactGBP,
+    xFmt: monthLabel,
+    titleFmt: monthLabel,
+    pointLabel: function(p){ return fmtCompactGBP(p.y); },
     ariaLabel:'Net sales, actual and projected to December 2026'
   });
 
