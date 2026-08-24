@@ -322,6 +322,96 @@
   <section>
     <div class="section-head">
       <div>
+        <h2>Profitability <span class="badge">Estimate</span></h2>
+        <p id="profitSub">Net profit for the selected range, after rent, royalties, platform fees, payroll, utilities and business rates</p>
+      </div>
+      <button class="tablebtn" id="profitConfigBtn" aria-expanded="false">Edit cost assumptions</button>
+    </div>
+    <div class="card forecast-card" id="profitConfigCard" style="display:none;">
+      <p class="sectiontitle" style="margin-top:0;">Cost assumptions — all figures apply to net sales (ex-VAT)</p>
+      <div class="sliders" id="profitInputs"></div>
+      <div class="controls" style="margin-top:4px;">
+        <span class="flabel" style="margin-right:6px;">Online platform fee applies to</span>
+        <div class="segmented" id="platformScopeToggle">
+          <button data-scope="vendor" class="active">Marketplace vendors only</button>
+          <button data-scope="online">All online (+ Flipdish)</button>
+          <button data-scope="all">All sales</button>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="stat-strip" id="profitStats"></div>
+      <div class="tablewrap">
+        <table class="datatable" id="profitTable"></table>
+      </div>
+    </div>
+    <div class="card" style="margin-top:14px;">
+      <p class="sectiontitle">Net profit by month — full history</p>
+      <div class="chartbox" id="profitTrendChart"></div>
+    </div>
+    <p class="footnote caveat">Rent (£8,150/quarter), utilities (£1,000/month) and business rates (£15,000/year) are pro-rated evenly by calendar day. Payroll is £200 for each weekday and £300 for each weekend day the shop recorded at least one order — it does not scale up for busier days or add extra staff on peak trading, so real payroll on very high-volume days is likely higher than modelled. Royalties (5%) and the online platform fee (15%, editable scope above) are applied to net sales (ex-VAT). Adjust any figure above if your actual terms differ.</p>
+    <div class="card forecast-card" style="margin-top:14px;">
+      <p class="sectiontitle" style="margin-top:0;">Profit forecast to December 2026 — with marketing vs. without</p>
+      <div class="legend" id="profitForecastLegend"></div>
+      <div class="chartbox" id="profitForecastChart"></div>
+      <div class="scenario-result" id="profitForecastResult" style="margin-top:14px;"></div>
+      <p class="footnote caveat">Uses the Sep–Dec sales forecast below and the marketing uplift/cost set in the Marketing investment scenario section — drag those sliders and this chart updates too. "With marketing" profit already has the marketing spend deducted; it does not add any extra payroll for the higher volume it assumes.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <div>
+        <h2>Sales forecast to December 2026 <span class="badge">Estimate</span></h2>
+        <p>Projected using the same months last year, scaled by this year's year-over-year trend</p>
+      </div>
+    </div>
+    <div class="card forecast-card">
+      <div class="stat-strip" id="forecastStats"></div>
+      <div class="legend" id="forecastLegend"></div>
+      <div class="chartbox" id="forecastChart"></div>
+      <p class="footnote caveat" id="forecastCaveat"></p>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <div>
+        <h2>Marketing investment scenario <span class="badge">Estimate</span></h2>
+        <p>What Sep–Dec could look like with leaflets, digital ads and field marketing — like a Domino's-style local push</p>
+      </div>
+    </div>
+    <div class="card forecast-card">
+      <div class="sliders" id="sliders"></div>
+      <div class="legend" id="scenarioLegend"></div>
+      <div class="chartbox" id="scenarioChart"></div>
+      <div class="scenario-result" id="scenarioResult"></div>
+      <p class="footnote caveat">Both the uplift percentages and the monthly costs are illustrative planning assumptions based on commonly-cited ranges for local food-delivery marketing (leaflet drops, paid social/search, and in-person field marketing — the field marketing cost is a rough stand-in for staff time, sampling stock and local partnerships) — they are <b>not</b> specific to this business, this area, or any quote you've received, and are not a guaranteed outcome. Adjust both the sliders and the £/month costs to match your own campaign quotes or past results.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <div>
+        <h2>Growth roadmap: November &amp; December targets <span class="badge">Estimate</span></h2>
+        <p>What it would take to reach the sales targets you've set for the last two months of the year</p>
+      </div>
+    </div>
+    <div class="card forecast-card">
+      <div class="sliders" id="roadmapTargets"></div>
+      <div class="tablewrap" style="margin-top:6px;">
+        <table class="datatable" id="roadmapTable"></table>
+      </div>
+      <div class="scenario-result" id="roadmapResult" style="margin-top:16px;"></div>
+      <p class="sectiontitle" style="margin-top:20px;">What closing a gap this size usually takes</p>
+      <ul class="roadmap-list" id="roadmapList"></ul>
+      <p class="footnote caveat" id="roadmapCaveat"></p>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <div>
         <h2 id="trendTitle">Monthly net sales</h2>
         <p id="trendSub">Every complete month since opening</p>
       </div>
@@ -452,88 +542,6 @@
     </div>
   </section>
 
-  <section>
-    <div class="section-head">
-      <div>
-        <h2>Profitability <span class="badge">Estimate</span></h2>
-        <p id="profitSub">Net profit for the selected range, after rent, royalties, platform fees, payroll, utilities and business rates</p>
-      </div>
-      <button class="tablebtn" id="profitConfigBtn" aria-expanded="false">Edit cost assumptions</button>
-    </div>
-    <div class="card forecast-card" id="profitConfigCard" style="display:none;">
-      <p class="sectiontitle" style="margin-top:0;">Cost assumptions — all figures apply to net sales (ex-VAT)</p>
-      <div class="sliders" id="profitInputs"></div>
-      <div class="controls" style="margin-top:4px;">
-        <span class="flabel" style="margin-right:6px;">Online platform fee applies to</span>
-        <div class="segmented" id="platformScopeToggle">
-          <button data-scope="vendor" class="active">Marketplace vendors only</button>
-          <button data-scope="online">All online (+ Flipdish)</button>
-          <button data-scope="all">All sales</button>
-        </div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="stat-strip" id="profitStats"></div>
-      <div class="tablewrap">
-        <table class="datatable" id="profitTable"></table>
-      </div>
-    </div>
-    <div class="card" style="margin-top:14px;">
-      <p class="sectiontitle">Net profit by month — full history</p>
-      <div class="chartbox" id="profitTrendChart"></div>
-    </div>
-    <p class="footnote caveat">Rent (£8,150/quarter), utilities (£1,000/month) and business rates (£15,000/year) are pro-rated evenly by calendar day. Payroll is £200 for each weekday and £300 for each weekend day the shop recorded at least one order — it does not scale up for busier days or add extra staff on peak trading, so real payroll on very high-volume days is likely higher than modelled. Royalties (5%) and the online platform fee (15%, editable scope above) are applied to net sales (ex-VAT). Adjust any figure above if your actual terms differ.</p>
-  </section>
-
-  <section>
-    <div class="section-head">
-      <div>
-        <h2>Sales forecast to December 2026 <span class="badge">Estimate</span></h2>
-        <p>Projected using the same months last year, scaled by this year's year-over-year trend</p>
-      </div>
-    </div>
-    <div class="card forecast-card">
-      <div class="stat-strip" id="forecastStats"></div>
-      <div class="legend" id="forecastLegend"></div>
-      <div class="chartbox" id="forecastChart"></div>
-      <p class="footnote caveat" id="forecastCaveat"></p>
-    </div>
-  </section>
-
-  <section>
-    <div class="section-head">
-      <div>
-        <h2>Marketing investment scenario <span class="badge">Estimate</span></h2>
-        <p>What Sep–Dec could look like with leaflets, digital ads and field marketing — like a Domino's-style local push</p>
-      </div>
-    </div>
-    <div class="card forecast-card">
-      <div class="sliders" id="sliders"></div>
-      <div class="legend" id="scenarioLegend"></div>
-      <div class="chartbox" id="scenarioChart"></div>
-      <div class="scenario-result" id="scenarioResult"></div>
-      <p class="footnote caveat">Both the uplift percentages and the monthly costs are illustrative planning assumptions based on commonly-cited ranges for local food-delivery marketing (leaflet drops, paid social/search, and in-person field marketing — the field marketing cost is a rough stand-in for staff time, sampling stock and local partnerships) — they are <b>not</b> specific to this business, this area, or any quote you've received, and are not a guaranteed outcome. Adjust both the sliders and the £/month costs to match your own campaign quotes or past results.</p>
-    </div>
-  </section>
-
-  <section>
-    <div class="section-head">
-      <div>
-        <h2>Growth roadmap: November &amp; December targets <span class="badge">Estimate</span></h2>
-        <p>What it would take to reach the sales targets you've set for the last two months of the year</p>
-      </div>
-    </div>
-    <div class="card forecast-card">
-      <div class="sliders" id="roadmapTargets"></div>
-      <div class="tablewrap" style="margin-top:6px;">
-        <table class="datatable" id="roadmapTable"></table>
-      </div>
-      <div class="scenario-result" id="roadmapResult" style="margin-top:16px;"></div>
-      <p class="sectiontitle" style="margin-top:20px;">What closing a gap this size usually takes</p>
-      <ul class="roadmap-list" id="roadmapList"></ul>
-      <p class="footnote caveat" id="roadmapCaveat"></p>
-    </div>
-  </section>
 
   <footer>
     <span>Source: order-level export, sales_data.csv (8,704 orders) · Aug 2025 &amp; Aug 2026 are partial months</span>
@@ -865,6 +873,69 @@ function drawLineChart(container, opts){
   hit.addEventListener('pointermove', handlePoint);
   hit.addEventListener('pointerdown', handlePoint);
   hit.addEventListener('pointerleave', function(){ hideTooltip(); cross.style.display='none'; dot.style.display='none'; });
+}
+
+/* ---------------- multi-series line chart (scenario comparisons) ---------------- */
+function drawMultiLineChart(container, opts){
+  container.innerHTML = "";
+  var W = opts.width || 1000, H = opts.height || 260;
+  var margin = {top:18, right:14, bottom:26, left:opts.leftMargin || 50};
+  var pw = W - margin.left - margin.right, ph = H - margin.top - margin.bottom;
+  var cats = opts.categories, n = cats.length;
+  var seriesList = opts.series;
+
+  var allVals = [];
+  seriesList.forEach(function(s){ allVals = allVals.concat(s.values); });
+  var maxVal = Math.max.apply(null, allVals.concat([0]));
+  var minVal = Math.min.apply(null, allVals.concat([0]));
+  var domainMax = niceMax(Math.max(0, maxVal) * 1.15 || 10);
+  var domainMin = minVal < 0 ? -niceMax(Math.abs(minVal) * 1.15 || 10) : 0;
+  var domainSpan = domainMax - domainMin;
+  function yOf(v){ return margin.top + ph * (domainMax - v) / domainSpan; }
+  var yZero = yOf(0);
+  function xAt(i){ return n>1 ? margin.left + (pw*i/(n-1)) : margin.left+pw/2; }
+
+  var svg = el('svg', {viewBox:'0 0 '+W+' '+H, role:'img', 'aria-label':opts.ariaLabel||''}, container);
+  var ticks = 4;
+  for (var t=0;t<=ticks;t++){
+    var val = domainMin + domainSpan*t/ticks;
+    var y = yOf(val);
+    el('line', {class:'gridline', x1:margin.left, x2:W-margin.right, y1:y, y2:y}, svg);
+    var lbl = el('text', {x:margin.left-8, y:y+3, 'text-anchor':'end'}, svg);
+    lbl.textContent = opts.axisFmt ? opts.axisFmt(val) : Math.round(val);
+  }
+  el('line', {class:'baseline', x1:margin.left, x2:W-margin.right, y1:yZero, y2:yZero}, svg);
+  cats.forEach(function(cat, i){
+    var xl = el('text', {x:xAt(i), y:H-6, 'text-anchor':'middle'}, svg);
+    xl.textContent = opts.xFmt ? opts.xFmt(cat, i) : cat;
+  });
+
+  seriesList.forEach(function(s){
+    var d = '';
+    s.values.forEach(function(v,i){ d += (i===0?'M':'L')+xAt(i)+','+yOf(v)+' '; });
+    el('path', {d:d, class:'line-path', stroke:s.color, 'stroke-dasharray': s.dashed?'5,4':'none'}, svg);
+    s.values.forEach(function(v,i){
+      el('circle', {cx:xAt(i), cy:yOf(v), r:4, fill:s.color, class:'endmark'}, svg);
+      if (opts.pointLabel && i === n-1){
+        var lt = el('text', {x:xAt(i), y:yOf(v)-11, 'text-anchor':'middle', class:'point-label', fill:s.color}, svg);
+        lt.textContent = opts.pointLabel(v, s);
+      }
+    });
+  });
+
+  var cross = el('line', {class:'crosshair', x1:0,x2:0,y1:margin.top,y2:margin.top+ph, style:'display:none'}, svg);
+  var band = pw/n;
+  cats.forEach(function(cat, i){
+    var hit = el('rect', {class:'hit', x:margin.left+band*i, y:margin.top, width:band, height:ph}, svg);
+    function handle(ev){
+      cross.setAttribute('x1', xAt(i)); cross.setAttribute('x2', xAt(i)); cross.style.display='block';
+      var rows = seriesList.map(function(s){ return {label:s.name, value: opts.valueFmt ? opts.valueFmt(s.values[i]) : s.values[i], color:s.color}; });
+      showTooltip(ev.clientX, ev.clientY, opts.titleFmt ? opts.titleFmt(cat,i) : cat, rows);
+    }
+    hit.addEventListener('pointermove', handle);
+    hit.addEventListener('pointerdown', handle);
+    hit.addEventListener('pointerleave', function(){ hideTooltip(); cross.style.display='none'; });
+  });
 }
 
 function renderMeterList(container, items, colorVar){
@@ -1536,6 +1607,57 @@ function renderProfitability(){
     barColorFn: function(v){ return v>=0 ? color : lossColor; },
     ariaLabel:'Net profit by month'
   });
+
+  renderProfitForecast();
+}
+function plainMonthBounds(moStr){
+  var start = moStr+'-01';
+  var d = new Date(start+'T00:00:00Z'); d.setUTCMonth(d.getUTCMonth()+1); d.setUTCDate(d.getUTCDate()-1);
+  return {start:start, end:d.toISOString().slice(0,10)};
+}
+function renderProfitForecast(){
+  var box = document.getElementById('profitForecastChart');
+  if (!box) return; // computeForecast/scenarioState not ready yet on first pass
+  var fc = computeForecast();
+  var channels = ['leaflet','digital','field'];
+  var totalUplift = channels.reduce(function(s,k){return s+scenarioState[k].pct;},0) / 100;
+  var monthlyCost = channels.reduce(function(s,k){return s+scenarioState[k].cost;},0);
+
+  var cats = fc.targets.map(function(t){return t.month;});
+  var noMkt = [], withMkt = [];
+  fc.targets.forEach(function(t){
+    var b = plainMonthBounds(t.month);
+    var base = computeProfitHypothetical(t.net_sales, b.start, b.end);
+    var withSales = t.net_sales * (1+totalUplift);
+    var withRaw = computeProfitHypothetical(withSales, b.start, b.end);
+    noMkt.push(base.netProfit);
+    withMkt.push(withRaw.netProfit - monthlyCost);
+  });
+
+  var noColor = resolveColor('var(--s1)'), withColor = resolveColor('var(--accent)');
+  document.getElementById('profitForecastLegend').innerHTML =
+    '<span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-secondary)"><span class="sw" style="background:'+noColor+'"></span>Without marketing</span>'+
+    '<span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-secondary)"><span class="sw" style="background:'+withColor+'"></span>With marketing (+'+(totalUplift*100).toFixed(0)+'%)</span>';
+
+  drawMultiLineChart(box, {
+    categories: cats,
+    series: [
+      {name:'Without marketing', color: noColor, values: noMkt},
+      {name:'With marketing', color: withColor, values: withMkt}
+    ],
+    xFmt: monthLabel, titleFmt: monthLabel,
+    valueFmt: function(v){return (v>=0?'':'−')+fmtGBP(Math.abs(v));}, axisFmt: fmtCompactGBP,
+    pointLabel: function(v){ return (v>=0?'':'−')+fmtCompactGBP(Math.abs(v)); },
+    ariaLabel:'Projected profit to December 2026, with and without marketing investment'
+  });
+
+  var noMktTotal = noMkt.reduce(function(s,v){return s+v;},0);
+  var withMktTotal = withMkt.reduce(function(s,v){return s+v;},0);
+  var delta = withMktTotal - noMktTotal;
+  document.getElementById('profitForecastResult').innerHTML =
+    '<div><div class="big">'+(noMktTotal>=0?'':'−')+fmtGBP(Math.abs(noMktTotal))+'</div><div class="lbl">projected Sep–Dec profit without marketing</div></div>'+
+    '<div><div class="big" style="color:'+withColor+'">'+(withMktTotal>=0?'':'−')+fmtGBP(Math.abs(withMktTotal))+'</div><div class="lbl">projected Sep–Dec profit with marketing (net of spend)</div></div>'+
+    '<div><div class="big" style="color:'+(delta>=0?'var(--good)':'var(--bad)')+'">'+(delta>=0?'+':'−')+fmtGBP(Math.abs(delta))+'</div><div class="lbl">difference marketing makes to Sep–Dec profit</div></div>';
 }
 
 /* ================= FORECAST TO DEC 2026 ================= */
@@ -1575,16 +1697,18 @@ function renderForecast(){
     '<span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-secondary)"><span class="sw" style="background:'+color+'"></span>Actual</span>'+
     '<span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-secondary)"><span class="sw dashed" style="color:'+color+'"></span>Projected</span>';
 
-  drawBarChart(document.getElementById('forecastChart'), {
-    categories: cats,
-    series: [{name:'Net sales', color: color, values: values}],
-    mode: 'single',
-    xFmt: monthLabel,
-    titleFmt: monthLabel,
+  var points = cats.map(function(mo, i){ return {x: mo, y: values[i]}; });
+  drawLineChart(document.getElementById('forecastChart'), {
+    points: points,
+    splitIndex: actualMonths.length - 1,
+    color: color,
+    yLabel: 'Net sales',
+    height: 280,
     valueFmt: function(v){return fmtGBP(v);},
     axisFmt: fmtCompactGBP,
-    projected: projFlags,
-    directLabel: function(cat, i){ return projFlags[i] ? fmtCompactGBP(values[i]) : null; },
+    xFmt: monthLabel,
+    titleFmt: monthLabel,
+    pointLabel: function(p){ return fmtCompactGBP(p.y); },
     ariaLabel:'Net sales, actual and projected to December 2026'
   });
 
@@ -1668,6 +1792,8 @@ function renderScenario(){
     '<div><div class="big">+'+fmtGBP(grossUplift)+'</div><div class="lbl">gross extra net sales, Sep–Dec, at +'+(totalUplift*100).toFixed(0)+'% combined uplift</div></div>'+
     '<div><div class="big">'+fmtGBP(totalCost)+'</div><div class="lbl">marketing spend, Sep–Dec ('+fmtGBP(monthlyCost)+'/mo × '+SCENARIO_MONTHS+' months)</div></div>'+
     '<div><div class="big" style="color:'+netColor+'">'+(netGain>=0?'+':'−')+fmtGBP(Math.abs(netGain))+'</div><div class="lbl">net gain after marketing cost &middot; '+roi.toFixed(1)+'&times; return</div></div>';
+
+  renderProfitForecast();
 }
 
 /* ================= GROWTH ROADMAP: NOV & DEC TARGETS ================= */
