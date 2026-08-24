@@ -318,7 +318,8 @@
       </div>
     </div>
     <div class="card" style="margin-top:14px;">
-      <p class="sectiontitle">Net profit by month — full history</p>
+      <p class="sectiontitle" style="margin-bottom:6px;">Net profit by month — full history, with forecast to December 2026</p>
+      <div class="legend" id="profitTrendLegend"></div>
       <div class="chartbox" id="profitTrendChart"></div>
     </div>
     <p class="footnote caveat">Rent (£8,150/quarter), utilities (£1,000/month) and business rates (£15,000/year) are pro-rated evenly by calendar day. Payroll is £200 for each weekday and £300 for each weekend day the shop recorded at least one order — it does not scale up for busier days or add extra staff on peak trading, so real payroll on very high-volume days is likely higher than modelled. Royalties (5%) and the online platform fee (15%, editable scope above) are applied to net sales (ex-VAT). Adjust any figure above if your actual terms differ.</p>
@@ -1571,13 +1572,30 @@ function renderProfitability(){
     var b = monthBounds(m.month);
     return computeProfit([m], b.start, b.end).netProfit;
   });
+  var trendProj = trendCats.map(function(){return false;});
+
+  var fcForTrend = computeForecast();
+  fcForTrend.targets.forEach(function(t){
+    var b = plainMonthBounds(t.month);
+    var proj = computeProfitHypothetical(t.net_sales, b.start, b.end);
+    trendCats.push(t.month);
+    trendVals.push(proj.netProfit);
+    trendProj.push(true);
+  });
+
+  document.getElementById('profitTrendLegend').innerHTML =
+    '<span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-secondary)"><span class="sw" style="background:'+color+'"></span>Profit</span>'+
+    '<span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-secondary)"><span class="sw" style="background:'+lossColor+'"></span>Loss</span>'+
+    '<span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-secondary)"><span class="sw dashed" style="color:var(--ink-muted)"></span>Projected (Sep–Dec 2026, no added marketing)</span>';
+
   drawBarChart(document.getElementById('profitTrendChart'), {
     categories: trendCats,
     series: [{name:'Net profit', color: color, values: trendVals}],
     mode:'single', xFmt: monthLabel, titleFmt: monthLabel,
     valueFmt: function(v){return (v>=0?'':'−')+fmtGBP(Math.abs(v));}, axisFmt: fmtCompactGBP,
     barColorFn: function(v){ return v>=0 ? color : lossColor; },
-    ariaLabel:'Net profit by month'
+    projected: trendProj,
+    ariaLabel:'Net profit by month, actual and projected to December 2026'
   });
 
   renderProfitForecast();
