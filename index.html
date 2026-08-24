@@ -80,6 +80,16 @@
   }
   .wrap{ max-width: 1180px; margin: 0 auto; padding: 28px 20px 64px; }
 
+  /* ---------- agency strip ---------- */
+  .agency-strip{ display:flex; align-items:center; gap:12px; margin-bottom:22px; }
+  .monk-badge{
+    background:#e7e7e4; color:#0b0b0b; flex:none;
+    font:800 11px/1.15 "Archivo",sans-serif; text-transform:uppercase; letter-spacing:.01em;
+    text-align:center; padding:7px 11px; border-radius:6px;
+  }
+  .agency-text{ font-size:12px; color:var(--ink-muted); }
+  .agency-text b{ color:var(--ink-secondary); font-weight:600; }
+
   /* ---------- header ---------- */
   .masthead{
     display:flex; align-items:flex-end; justify-content:space-between; gap:20px;
@@ -276,6 +286,11 @@
 </style>
 
 <div class="wrap">
+
+  <div class="agency-strip">
+    <span class="monk-badge">Monk<br>Food</span>
+    <span class="agency-text">Dashboard built for <b>The Real Pizza Company — Sutton Coldfield</b></span>
+  </div>
 
   <div class="masthead">
     <div>
@@ -521,8 +536,8 @@
   </section>
 
   <footer>
-    <span>Source: order-level export, sales_data.csv (8,704 orders)</span>
-    <span>Aug 2025 &amp; Aug 2026 are partial months</span>
+    <span>Source: order-level export, sales_data.csv (8,704 orders) · Aug 2025 &amp; Aug 2026 are partial months</span>
+    <span>Built by <b>Monk Food</b> · monkfood.co.uk</span>
   </footer>
 </div>
 
