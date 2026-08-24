@@ -649,6 +649,13 @@ function drawBarChart(container, opts){
         if (isProj){
           el('rect', {x:rx, y:ry, width:barW, height:Math.max(segH,0.5), fill:'none', stroke:ser.color, 'stroke-width':1, 'stroke-dasharray':'2,2'}, svg);
         }
+        if (opts.directLabel && visibleSeries.length===1){
+          var lbl2 = opts.directLabel(cat, i);
+          if (lbl2 != null){
+            var lt = el('text', {x:rx+barW/2, y:ry-7, 'text-anchor':'middle', class:'point-label'}, svg);
+            lt.textContent = lbl2;
+          }
+        }
       });
     }
 
@@ -1235,18 +1242,16 @@ function renderForecast(){
     '<span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-secondary)"><span class="sw" style="background:'+color+'"></span>Actual</span>'+
     '<span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-secondary)"><span class="sw dashed" style="color:'+color+'"></span>Projected</span>';
 
-  var points = cats.map(function(mo, i){ return {x: mo, y: values[i]}; });
-  drawLineChart(document.getElementById('forecastChart'), {
-    points: points,
-    splitIndex: actualMonths.length - 1,
-    color: color,
-    yLabel: 'Net sales',
-    height: 280,
-    valueFmt: function(v){return fmtGBP(v);},
-    axisFmt: fmtCompactGBP,
+  drawBarChart(document.getElementById('forecastChart'), {
+    categories: cats,
+    series: [{name:'Net sales', color: color, values: values}],
+    mode: 'single',
     xFmt: monthLabel,
     titleFmt: monthLabel,
-    pointLabel: function(p){ return fmtCompactGBP(p.y); },
+    valueFmt: function(v){return fmtGBP(v);},
+    axisFmt: fmtCompactGBP,
+    projected: projFlags,
+    directLabel: function(cat, i){ return projFlags[i] ? fmtCompactGBP(values[i]) : null; },
     ariaLabel:'Net sales, actual and projected to December 2026'
   });
 
