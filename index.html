@@ -1,6 +1,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Sutton Coldfield Sales</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiNlN2U3ZTQiLz48dGV4dCB4PSIzMiIgeT0iMzAiIGZvbnQtZmFtaWx5PSJBcmlhbCwgSGVsdmV0aWNhLCBzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iODAwIiBmb250LXNpemU9IjE3IiBsZXR0ZXItc3BhY2luZz0iMC41IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjMGIwYjBiIj5NT05LPC90ZXh0Pjx0ZXh0IHg9IjMyIiB5PSI0OSIgZm9udC1mYW1pbHk9IkFyaWFsLCBIZWx2ZXRpY2EsIHNhbnMtc2VyaWYiIGZvbnQtd2VpZ2h0PSI4MDAiIGZvbnQtc2l6ZT0iMTciIGxldHRlci1zcGFjaW5nPSIwLjUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMwYjBiMGIiPkZPT0Q8L3RleHQ+PC9zdmc+">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -29,46 +30,8 @@
     --s5: #e87ba4; /* magenta */
     --shadow: 0 1px 2px rgba(15,23,42,0.03), 0 8px 24px -12px rgba(15,23,42,0.10);
   }
-  @media (prefers-color-scheme: dark){
-    :root:not([data-theme="light"]){
-      color-scheme: dark;
-      --surface-page:   #141210;
-      --surface-card:   #1c1a17;
-      --surface-raised: #221f1b;
-      --ink-primary:    #f5f1ea;
-      --ink-secondary:  #c3bcb0;
-      --ink-muted:      #948a7c;
-      --grid:           #2d2a25;
-      --baseline:       #3c372f;
-      --border:         rgba(255,255,255,0.10);
-      --accent:         #d1573a;
-      --accent-strong:  #ea8262;
-      --accent-wash:    rgba(209,87,58,0.16);
-      --good:           #17b317;
-      --bad:            #e66767;
-      --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181;
-      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -12px rgba(0,0,0,0.5);
-    }
-  }
-  :root[data-theme="dark"]{
-    color-scheme: dark;
-    --surface-page:   #141210;
-    --surface-card:   #1c1a17;
-    --surface-raised: #221f1b;
-    --ink-primary:    #f5f1ea;
-    --ink-secondary:  #c3bcb0;
-    --ink-muted:      #948a7c;
-    --grid:           #2d2a25;
-    --baseline:       #3c372f;
-    --border:         rgba(255,255,255,0.10);
-    --accent:         #d1573a;
-    --accent-strong:  #ea8262;
-    --accent-wash:    rgba(209,87,58,0.16);
-    --good:           #17b317;
-    --bad:            #e66767;
-    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181;
-    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -12px rgba(0,0,0,0.5);
-  }
+  /* This dashboard is deliberately light-only — no dark-mode variant.
+     Colours are fixed regardless of the viewer's OS or app theme setting. */
 
   *{ box-sizing: border-box; }
   body{
@@ -86,9 +49,18 @@
     background:#e7e7e4; color:#0b0b0b; flex:none;
     font:800 11px/1.15 "Archivo",sans-serif; text-transform:uppercase; letter-spacing:.01em;
     text-align:center; padding:7px 11px; border-radius:6px;
+    text-decoration:none; display:inline-block; cursor:pointer;
+    transition:background .12s ease, transform .12s ease;
   }
+  .monk-badge:hover{ background:#dcdcd8; }
+  .monk-badge:active{ transform:translateY(1px); }
+  .monk-badge:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
   .agency-text{ font-size:12px; color:var(--ink-muted); }
   .agency-text b{ color:var(--ink-secondary); font-weight:600; }
+  .footer-link{ color:inherit; text-decoration:none; border-bottom:1px solid transparent; }
+  .footer-link:hover{ border-bottom-color:var(--ink-muted); }
+  .footer-link:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+  .footer-link b{ color:var(--ink-secondary); }
 
   /* ---------- header ---------- */
   .masthead{
@@ -288,7 +260,7 @@
 <div class="wrap">
 
   <div class="agency-strip">
-    <span class="monk-badge">Monk<br>Food</span>
+    <a class="monk-badge" href="https://monkfood.co.uk" target="_blank" rel="noopener">Monk<br>Food</a>
     <span class="agency-text">Dashboard built for <b>The Real Pizza Company — Sutton Coldfield</b></span>
   </div>
 
@@ -545,7 +517,7 @@
 
   <footer>
     <span>Source: order-level export, sales_data.csv (8,704 orders) · Aug 2025 &amp; Aug 2026 are partial months</span>
-    <span>Built by <b>Monk Food</b> · monkfood.co.uk</span>
+    <span>Built by <a class="footer-link" href="https://monkfood.co.uk" target="_blank" rel="noopener"><b>Monk Food</b> · monkfood.co.uk</a></span>
   </footer>
 </div>
 
