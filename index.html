@@ -308,6 +308,7 @@
           <button data-scope="vendor" class="active">Marketplace vendors only</button>
           <button data-scope="online">All online (+ Flipdish)</button>
           <button data-scope="all">All sales</button>
+          <button data-scope="split">Split: 7% Flipdish / 13% vendors</button>
         </div>
       </div>
     </div>
@@ -1460,6 +1461,8 @@ var PROFIT_CFG = {
   rentPerQuarter: 8150,
   royaltyPct: 5,
   platformPct: 15,
+  splitFlipdishPct: 7,
+  splitVendorPct: 13,
   payrollWeekday: 200,
   payrollWeekend: 300,
   utilityPerMonth: 1000,
@@ -1498,9 +1501,12 @@ function computeProfit(months, fromDate, toDate){
 
   var platformBase = PROFIT_CFG.platformScope==='vendor' ? sourcesSum(months, VENDOR_SOURCES)
                     : PROFIT_CFG.platformScope==='online' ? sourcesSum(months, ONLINE_SOURCES)
+                    : PROFIT_CFG.platformScope==='split' ? sourcesSum(months, ['Flipdish']) + sourcesSum(months, VENDOR_SOURCES)
                     : sumNet;
   var royalties = sumNet * PROFIT_CFG.royaltyPct/100;
-  var platformFees = platformBase * PROFIT_CFG.platformPct/100;
+  var platformFees = PROFIT_CFG.platformScope==='split'
+    ? sourcesSum(months, ['Flipdish'])*PROFIT_CFG.splitFlipdishPct/100 + sourcesSum(months, VENDOR_SOURCES)*PROFIT_CFG.splitVendorPct/100
+    : platformBase * PROFIT_CFG.platformPct/100;
 
   var rent = PROFIT_CFG.rentPerQuarter*4/365 * days;
   var utility = PROFIT_CFG.utilityPerMonth*12/365 * days;
@@ -1527,6 +1533,7 @@ function computeProfit(months, fromDate, toDate){
 function platformLabel(){
   return PROFIT_CFG.platformScope==='vendor' ? 'Uber Eats, Deliveroo, Just Eat'
        : PROFIT_CFG.platformScope==='online' ? 'Flipdish, Uber Eats, Deliveroo, Just Eat'
+       : PROFIT_CFG.platformScope==='split' ? PROFIT_CFG.splitFlipdishPct+'% Flipdish + '+PROFIT_CFG.splitVendorPct+'% vendors'
        : 'all sales';
 }
 function setupProfitInputs(){
@@ -1535,6 +1542,8 @@ function setupProfitInputs(){
     {key:'rentPerQuarter', label:'Rent', suffix:'/ quarter'},
     {key:'royaltyPct', label:'Royalties', suffix:'% of net sales', isPct:true},
     {key:'platformPct', label:'Online platform fee', suffix:'%', isPct:true},
+    {key:'splitFlipdishPct', label:'— Flipdish rate (Split scope)', suffix:'%', isPct:true},
+    {key:'splitVendorPct', label:'— Vendor rate (Split scope)', suffix:'%', isPct:true},
     {key:'payrollWeekday', label:'Payroll — weekday', suffix:'/ day'},
     {key:'payrollWeekend', label:'Payroll — weekend day', suffix:'/ day'},
     {key:'utilityPerMonth', label:'Utilities', suffix:'/ month'},
@@ -1585,7 +1594,7 @@ function renderProfitability(){
   var rows = [
     ['Net sales (ex-VAT)', p.sumNet, null],
     ['Royalties ('+PROFIT_CFG.royaltyPct+'% of net sales)', -p.royalties, p.sumNet?p.royalties/p.sumNet*100:0],
-    ['Online platform fee ('+PROFIT_CFG.platformPct+'% of '+platformLabel()+')', -p.platformFees, p.sumNet?p.platformFees/p.sumNet*100:0],
+    ['Online platform fee ('+(PROFIT_CFG.platformScope==='split' ? platformLabel() : PROFIT_CFG.platformPct+'% of '+platformLabel())+')', -p.platformFees, p.sumNet?p.platformFees/p.sumNet*100:0],
     ['Rent ('+p.days+' days pro-rated)', -p.rent, p.sumNet?p.rent/p.sumNet*100:0],
     ['Utilities', -p.utility, p.sumNet?p.utility/p.sumNet*100:0],
     ['Business rates', -p.rates, p.sumNet?p.rates/p.sumNet*100:0],
@@ -1690,6 +1699,8 @@ var CALC_STATE = {
   rentPerQuarter: PROFIT_CFG.rentPerQuarter,
   royaltyPct: PROFIT_CFG.royaltyPct,
   platformPct: PROFIT_CFG.platformPct,
+  splitFlipdishPct: PROFIT_CFG.splitFlipdishPct,
+  splitVendorPct: PROFIT_CFG.splitVendorPct,
   payrollWeekday: PROFIT_CFG.payrollWeekday,
   payrollWeekend: PROFIT_CFG.payrollWeekend,
   utilityPerMonth: PROFIT_CFG.utilityPerMonth,
@@ -1699,6 +1710,7 @@ var CALC_STATE = {
 function calcPlatformLabel(){
   return CALC_STATE.platformScope==='vendor' ? 'Uber Eats, Deliveroo, Just Eat'
        : CALC_STATE.platformScope==='online' ? 'Flipdish, Uber Eats, Deliveroo, Just Eat'
+       : CALC_STATE.platformScope==='split' ? CALC_STATE.splitFlipdishPct+'% Flipdish + '+CALC_STATE.splitVendorPct+'% vendors'
        : 'all sales';
 }
 function computeProfitCalc(netSales, weekdays, weekends){
@@ -1706,11 +1718,14 @@ function computeProfitCalc(netSales, weekdays, weekends){
   var lifetimeNet = MONTHS.reduce(function(s,m){return s+m.net_sales;},0);
   var vendorShare = sourcesSum(MONTHS, VENDOR_SOURCES)/lifetimeNet;
   var onlineShare = sourcesSum(MONTHS, ONLINE_SOURCES)/lifetimeNet;
+  var flipdishShare = sourcesSum(MONTHS, ['Flipdish'])/lifetimeNet;
   var platformBase = CALC_STATE.platformScope==='vendor' ? netSales*vendorShare
                     : CALC_STATE.platformScope==='online' ? netSales*onlineShare
                     : netSales;
   var royalties = netSales * CALC_STATE.royaltyPct/100;
-  var platformFees = platformBase * CALC_STATE.platformPct/100;
+  var platformFees = CALC_STATE.platformScope==='split'
+    ? netSales*flipdishShare*CALC_STATE.splitFlipdishPct/100 + netSales*vendorShare*CALC_STATE.splitVendorPct/100
+    : platformBase * CALC_STATE.platformPct/100;
   var rent = CALC_STATE.rentPerQuarter*4/365 * days;
   var utility = CALC_STATE.utilityPerMonth*12/365 * days;
   var rates = CALC_STATE.ratesPerYear/365 * days;
@@ -1740,6 +1755,8 @@ function setupCalcInputs(){
     {key:'rentPerQuarter', label:'Rent', prefix:'£', suffix:'/ quarter', step:10},
     {key:'royaltyPct', label:'Royalties', prefix:'', suffix:'% of net sales', step:0.5, isPct:true},
     {key:'platformPct', label:'Online platform fee', prefix:'', suffix:'%', step:0.5, isPct:true},
+    {key:'splitFlipdishPct', label:'— Flipdish rate (Split scope)', prefix:'', suffix:'%', step:0.5, isPct:true},
+    {key:'splitVendorPct', label:'— Vendor rate (Split scope)', prefix:'', suffix:'%', step:0.5, isPct:true},
     {key:'payrollWeekday', label:'Payroll — weekday', prefix:'£', suffix:'/ day', step:10},
     {key:'payrollWeekend', label:'Payroll — weekend day', prefix:'£', suffix:'/ day', step:10},
     {key:'utilityPerMonth', label:'Utilities', prefix:'£', suffix:'/ month', step:10},
@@ -1758,6 +1775,7 @@ function setupCalcInputs(){
       '<button data-scope="vendor">Marketplace vendors only</button>'+
       '<button data-scope="online">All online (+ Flipdish)</button>'+
       '<button data-scope="all">All sales</button>'+
+      '<button data-scope="split">Split: 7% Flipdish / 13% vendors</button>'+
     '</div></div>';
 
   wrap.innerHTML = html;
@@ -1798,7 +1816,7 @@ function renderCalc(){
   var rows = [
     ['Net sales (ex-VAT)', p.netSales, null],
     ['Royalties ('+CALC_STATE.royaltyPct+'% of net sales)', -p.royalties, p.netSales?p.royalties/p.netSales*100:0],
-    ['Online platform fee ('+CALC_STATE.platformPct+'% of '+calcPlatformLabel()+')', -p.platformFees, p.netSales?p.platformFees/p.netSales*100:0],
+    ['Online platform fee ('+(CALC_STATE.platformScope==='split' ? calcPlatformLabel() : CALC_STATE.platformPct+'% of '+calcPlatformLabel())+')', -p.platformFees, p.netSales?p.platformFees/p.netSales*100:0],
     ['Rent ('+p.days+' days pro-rated)', -p.rent, p.netSales?p.rent/p.netSales*100:0],
     ['Utilities', -p.utility, p.netSales?p.utility/p.netSales*100:0],
     ['Business rates', -p.rates, p.netSales?p.rates/p.netSales*100:0],
@@ -2058,12 +2076,15 @@ function computeProfitHypothetical(netSales, fromDate, toDate){
   var lifetimeNet = MONTHS.reduce(function(s,m){return s+m.net_sales;},0);
   var vendorShare = sourcesSum(MONTHS, VENDOR_SOURCES)/lifetimeNet;
   var onlineShare = sourcesSum(MONTHS, ONLINE_SOURCES)/lifetimeNet;
+  var flipdishShare = sourcesSum(MONTHS, ['Flipdish'])/lifetimeNet;
   var platformBase = PROFIT_CFG.platformScope==='vendor' ? netSales*vendorShare
                     : PROFIT_CFG.platformScope==='online' ? netSales*onlineShare
                     : netSales;
   var days = calendarDays(fromDate, toDate);
   var royalties = netSales*PROFIT_CFG.royaltyPct/100;
-  var platformFees = platformBase*PROFIT_CFG.platformPct/100;
+  var platformFees = PROFIT_CFG.platformScope==='split'
+    ? netSales*flipdishShare*PROFIT_CFG.splitFlipdishPct/100 + netSales*vendorShare*PROFIT_CFG.splitVendorPct/100
+    : platformBase*PROFIT_CFG.platformPct/100;
   var rent = PROFIT_CFG.rentPerQuarter*4/365*days;
   var utility = PROFIT_CFG.utilityPerMonth*12/365*days;
   var rates = PROFIT_CFG.ratesPerYear/365*days;
