@@ -335,6 +335,23 @@
   <section>
     <div class="section-head">
       <div>
+        <h2>Profit calculator</h2>
+        <p>Type in any sales figure and period length to see the profit it would produce</p>
+      </div>
+    </div>
+    <div class="card forecast-card">
+      <div class="sliders" id="calcInputs"></div>
+      <div class="tablewrap">
+        <table class="datatable" id="calcTable"></table>
+      </div>
+      <div class="scenario-result" id="calcResult" style="margin-top:14px;"></div>
+      <p class="footnote caveat">Uses the same cost assumptions as Profitability above — edit them there and this calculator updates too. Royalties and the platform fee apply to the net sales figure you enter; rent, utilities and business rates are pro-rated by the days you set; payroll uses the weekday/weekend counts you set.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <div>
         <h2>Sales forecast to December 2026 <span class="badge">Estimate</span></h2>
         <p>Projected using the same months last year, scaled by this year's year-over-year trend</p>
       </div>
@@ -360,6 +377,22 @@
       <div class="chartbox" id="scenarioChart"></div>
       <div class="scenario-result" id="scenarioResult"></div>
       <p class="footnote caveat">Both the uplift percentages and the monthly costs are illustrative planning assumptions based on commonly-cited ranges for local food-delivery marketing (leaflet drops, paid social/search, and in-person field marketing — the field marketing cost is a rough stand-in for staff time, sampling stock and local partnerships) — they are <b>not</b> specific to this business, this area, or any quote you've received, and are not a guaranteed outcome. Adjust both the sliders and the £/month costs to match your own campaign quotes or past results.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <div>
+        <h2>Repeat customer growth <span class="badge">Estimate</span></h2>
+        <p>What raising the repeat-customer rate could be worth, Sep–Dec 2026</p>
+      </div>
+    </div>
+    <div class="card forecast-card">
+      <div class="sliders" id="repeatInputs"></div>
+      <div class="legend" id="repeatLegend"></div>
+      <div class="chartbox" id="repeatChart"></div>
+      <div class="scenario-result" id="repeatResult" style="margin-top:14px;"></div>
+      <p class="footnote caveat">This export has no customer-level data, so there's no way to measure today's actual repeat-customer revenue split, or to verify the rates above. The "sales impact per 1pt" figure is an editable illustrative assumption, <b>not</b> derived from this business's data — replace it with a real number (e.g. from Flipdish's own customer analytics) if you have one.</p>
     </div>
   </section>
 
@@ -1599,6 +1632,7 @@ function renderProfitability(){
   });
 
   renderProfitForecast();
+  renderCalc();
 }
 function plainMonthBounds(moStr){
   var start = moStr+'-01';
@@ -1648,6 +1682,82 @@ function renderProfitForecast(){
     '<div><div class="big">'+(noMktTotal>=0?'':'−')+fmtGBP(Math.abs(noMktTotal))+'</div><div class="lbl">projected Sep–Dec profit without marketing</div></div>'+
     '<div><div class="big" style="color:'+withColor+'">'+(withMktTotal>=0?'':'−')+fmtGBP(Math.abs(withMktTotal))+'</div><div class="lbl">projected Sep–Dec profit with marketing (net of spend)</div></div>'+
     '<div><div class="big" style="color:'+(delta>=0?'var(--good)':'var(--bad)')+'">'+(delta>=0?'+':'−')+fmtGBP(Math.abs(delta))+'</div><div class="lbl">difference marketing makes to Sep–Dec profit</div></div>';
+}
+
+/* ================= PROFIT CALCULATOR ================= */
+var CALC_STATE = { netSales: 15316, weekdays: 22, weekends: 9 };
+function computeProfitCalc(netSales, weekdays, weekends){
+  var days = weekdays + weekends;
+  var lifetimeNet = MONTHS.reduce(function(s,m){return s+m.net_sales;},0);
+  var vendorShare = sourcesSum(MONTHS, VENDOR_SOURCES)/lifetimeNet;
+  var onlineShare = sourcesSum(MONTHS, ONLINE_SOURCES)/lifetimeNet;
+  var platformBase = PROFIT_CFG.platformScope==='vendor' ? netSales*vendorShare
+                    : PROFIT_CFG.platformScope==='online' ? netSales*onlineShare
+                    : netSales;
+  var royalties = netSales * PROFIT_CFG.royaltyPct/100;
+  var platformFees = platformBase * PROFIT_CFG.platformPct/100;
+  var rent = PROFIT_CFG.rentPerQuarter*4/365 * days;
+  var utility = PROFIT_CFG.utilityPerMonth*12/365 * days;
+  var rates = PROFIT_CFG.ratesPerYear/365 * days;
+  var payroll = weekdays*PROFIT_CFG.payrollWeekday + weekends*PROFIT_CFG.payrollWeekend;
+  var totalCosts = royalties+platformFees+rent+utility+rates+payroll;
+  var netProfit = netSales - totalCosts;
+  return {netSales:netSales, royalties:royalties, platformFees:platformFees, rent:rent, utility:utility, rates:rates, payroll:payroll, days:days, totalCosts:totalCosts, netProfit:netProfit, marginPct: netSales?netProfit/netSales*100:0};
+}
+function setupCalcInputs(){
+  var wrap = document.getElementById('calcInputs');
+  wrap.innerHTML =
+    '<div class="cost-row" style="margin-top:0;"><span class="clabel" style="min-width:170px;font-weight:600;color:var(--ink-primary);">Net sales</span>'+
+    '<span class="cwrap"><span class="cprefix">£</span><input type="number" min="0" step="100" value="'+CALC_STATE.netSales+'" id="calc-netSales" class="cost-input" style="width:110px;"></span><span class="clabel">ex-VAT</span></div>'+
+    '<div class="cost-row"><span class="clabel" style="min-width:170px;">Weekdays in period</span>'+
+    '<span class="cwrap"><input type="number" min="0" step="1" value="'+CALC_STATE.weekdays+'" id="calc-weekdays" class="cost-input" style="width:70px;"></span></div>'+
+    '<div class="cost-row"><span class="clabel" style="min-width:170px;">Weekend days in period</span>'+
+    '<span class="cwrap"><input type="number" min="0" step="1" value="'+CALC_STATE.weekends+'" id="calc-weekends" class="cost-input" style="width:70px;"></span></div>'+
+    '<div class="controls" style="margin-top:2px;"><span class="flabel" style="margin-right:6px;">Quick fill</span><div class="segmented" id="calcPresets">'+
+      '<button data-w="5" data-e="2">1 week</button>'+
+      '<button data-w="22" data-e="9">1 month</button>'+
+      '<button data-w="65" data-e="26">1 quarter</button>'+
+      '<button data-w="261" data-e="104">1 year</button>'+
+    '</div></div>';
+  ['netSales','weekdays','weekends'].forEach(function(key){
+    document.getElementById('calc-'+key).addEventListener('input', function(ev){
+      CALC_STATE[key] = Math.max(0, parseFloat(ev.target.value)||0);
+      renderCalc();
+    });
+  });
+  document.getElementById('calcPresets').addEventListener('click', function(ev){
+    var btn = ev.target.closest('button'); if (!btn) return;
+    CALC_STATE.weekdays = parseInt(btn.dataset.w,10);
+    CALC_STATE.weekends = parseInt(btn.dataset.e,10);
+    document.getElementById('calc-weekdays').value = CALC_STATE.weekdays;
+    document.getElementById('calc-weekends').value = CALC_STATE.weekends;
+    renderCalc();
+  });
+}
+function renderCalc(){
+  if (!document.getElementById('calcTable')) return;
+  var p = computeProfitCalc(CALC_STATE.netSales, CALC_STATE.weekdays, CALC_STATE.weekends);
+  var marginColor = p.netProfit>=0 ? 'var(--good)' : 'var(--bad)';
+  var rows = [
+    ['Net sales (ex-VAT)', p.netSales, null],
+    ['Royalties ('+PROFIT_CFG.royaltyPct+'% of net sales)', -p.royalties, p.netSales?p.royalties/p.netSales*100:0],
+    ['Online platform fee ('+PROFIT_CFG.platformPct+'% of '+platformLabel()+')', -p.platformFees, p.netSales?p.platformFees/p.netSales*100:0],
+    ['Rent ('+p.days+' days pro-rated)', -p.rent, p.netSales?p.rent/p.netSales*100:0],
+    ['Utilities', -p.utility, p.netSales?p.utility/p.netSales*100:0],
+    ['Business rates', -p.rates, p.netSales?p.rates/p.netSales*100:0],
+    ['Payroll ('+CALC_STATE.weekdays+' weekdays + '+CALC_STATE.weekends+' weekend days)', -p.payroll, p.netSales?p.payroll/p.netSales*100:0]
+  ];
+  var html = '<thead><tr><th>Line item</th><th>Amount</th><th>% of net sales</th></tr></thead><tbody>';
+  rows.forEach(function(r){
+    var neg = r[1] < 0;
+    html += '<tr><td>'+r[0]+'</td><td style="color:'+(neg?'var(--bad)':'var(--ink-primary)')+'">'+(neg?'−':'')+fmtGBP(Math.abs(r[1]))+'</td><td>'+(r[2]==null?'—':r[2].toFixed(1)+'%')+'</td></tr>';
+  });
+  html += '</tbody><tfoot><tr><td>Net profit</td><td style="color:'+marginColor+'">'+(p.netProfit>=0?'':'−')+fmtGBP(Math.abs(p.netProfit))+'</td><td>'+p.marginPct.toFixed(1)+'%</td></tr></tfoot>';
+  document.getElementById('calcTable').innerHTML = html;
+  document.getElementById('calcResult').innerHTML =
+    '<div><div class="big">'+fmtGBP(p.totalCosts)+'</div><div class="lbl">total costs over '+p.days+' days</div></div>'+
+    '<div><div class="big" style="color:'+marginColor+'">'+(p.netProfit>=0?'':'−')+fmtGBP(Math.abs(p.netProfit))+'</div><div class="lbl">net profit</div></div>'+
+    '<div><div class="big" style="color:'+marginColor+'">'+p.marginPct.toFixed(1)+'%</div><div class="lbl">margin</div></div>';
 }
 
 /* ================= FORECAST TO DEC 2026 ================= */
@@ -1786,6 +1896,85 @@ function renderScenario(){
   renderProfitForecast();
 }
 
+/* ================= REPEAT CUSTOMER GROWTH ================= */
+var REPEAT_STATE = {
+  current: 1.4,
+  impactPerPoint: 1.5,
+  targets: { '2026-09': 2, '2026-10': 3, '2026-11': 4, '2026-12': 5 }
+};
+function setupRepeatInputs(){
+  var wrap = document.getElementById('repeatInputs');
+  var monthDefs = [
+    {key:'2026-09', label:'September target'},
+    {key:'2026-10', label:'October target'},
+    {key:'2026-11', label:'November target'},
+    {key:'2026-12', label:'December target'}
+  ];
+  var html =
+    '<div class="cost-row" style="margin-top:0;"><span class="clabel" style="min-width:170px;font-weight:600;color:var(--ink-primary);">Repeat rate today</span>'+
+    '<span class="cwrap"><input type="number" min="0" step="0.1" value="'+REPEAT_STATE.current+'" id="repeat-current" class="cost-input" style="width:60px;"><span class="cprefix">%</span></span></div>';
+  monthDefs.forEach(function(d){
+    html += '<div class="cost-row"><span class="clabel" style="min-width:170px;">'+d.label+'</span>'+
+      '<span class="cwrap"><input type="number" min="0" step="0.1" value="'+REPEAT_STATE.targets[d.key]+'" id="repeat-'+d.key+'" class="cost-input" style="width:60px;"><span class="cprefix">%</span></span></div>';
+  });
+  html += '<div class="cost-row"><span class="clabel" style="min-width:170px;font-weight:600;color:var(--ink-primary);">Sales impact per 1pt</span>'+
+    '<span class="cwrap"><input type="number" min="0" step="0.1" value="'+REPEAT_STATE.impactPerPoint+'" id="repeat-impact" class="cost-input" style="width:60px;"><span class="cprefix">%</span></span><span class="clabel">of net sales, illustrative</span></div>';
+  wrap.innerHTML = html;
+
+  document.getElementById('repeat-current').addEventListener('input', function(ev){
+    REPEAT_STATE.current = Math.max(0, parseFloat(ev.target.value)||0); renderRepeat();
+  });
+  document.getElementById('repeat-impact').addEventListener('input', function(ev){
+    REPEAT_STATE.impactPerPoint = Math.max(0, parseFloat(ev.target.value)||0); renderRepeat();
+  });
+  monthDefs.forEach(function(d){
+    document.getElementById('repeat-'+d.key).addEventListener('input', function(ev){
+      REPEAT_STATE.targets[d.key] = Math.max(0, parseFloat(ev.target.value)||0); renderRepeat();
+    });
+  });
+}
+function renderRepeat(){
+  var box = document.getElementById('repeatChart');
+  if (!box) return;
+  var fc = computeForecast();
+  var cats = fc.targets.map(function(t){return t.month;});
+  var baseline = fc.targets.map(function(t){return t.net_sales;});
+  var withRepeat = fc.targets.map(function(t){
+    var target = REPEAT_STATE.targets[t.month] || REPEAT_STATE.current;
+    var upliftPct = Math.max(0, target - REPEAT_STATE.current) * REPEAT_STATE.impactPerPoint / 100;
+    return t.net_sales * (1 + upliftPct);
+  });
+
+  var baseColor = resolveColor('var(--s1)'), repColor = resolveColor('var(--s3)');
+  document.getElementById('repeatLegend').innerHTML =
+    '<span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-secondary)"><span class="sw" style="background:'+baseColor+'"></span>Baseline forecast</span>'+
+    '<span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-secondary)"><span class="sw" style="background:'+repColor+'"></span>With higher repeat rate</span>';
+
+  drawMultiLineChart(box, {
+    categories: cats,
+    series: [
+      {name:'Baseline forecast', color: baseColor, values: baseline},
+      {name:'With higher repeat rate', color: repColor, values: withRepeat}
+    ],
+    xFmt: monthLabel, titleFmt: monthLabel,
+    valueFmt: function(v){return fmtGBP(v);}, axisFmt: fmtCompactGBP,
+    ariaLabel:'Sales forecast with and without a higher repeat-customer rate'
+  });
+
+  var baseTotal = baseline.reduce(function(s,v){return s+v;},0);
+  var repTotal = withRepeat.reduce(function(s,v){return s+v;},0);
+  var extraSales = repTotal - baseTotal;
+  var bounds = {from:'2026-09-01', to:'2026-12-31'};
+  var profBase = computeProfitHypothetical(baseTotal, bounds.from, bounds.to);
+  var profRep = computeProfitHypothetical(repTotal, bounds.from, bounds.to);
+  var extraProfit = profRep.netProfit - profBase.netProfit;
+
+  document.getElementById('repeatResult').innerHTML =
+    '<div><div class="big">'+REPEAT_STATE.targets['2026-12']+'%</div><div class="lbl">December target, up from '+REPEAT_STATE.current+'% today</div></div>'+
+    '<div><div class="big" style="color:'+repColor+'">+'+fmtGBP(extraSales)+'</div><div class="lbl">extra Sep–Dec net sales at these targets</div></div>'+
+    '<div><div class="big" style="color:'+(extraProfit>=0?'var(--good)':'var(--bad)')+'">+'+fmtGBP(extraProfit)+'</div><div class="lbl">extra Sep–Dec profit (same cost structure, no added marketing)</div></div>';
+}
+
 /* ================= GROWTH ROADMAP: NOV & DEC TARGETS ================= */
 var ROADMAP_TARGETS = { '2026-11': 40000, '2026-12': 48000 };
 function bestMonthEver(){
@@ -1915,13 +2104,17 @@ function renderAll(){
 }
 renderAll();
 setupProfitInputs();
+setupCalcInputs();
+renderCalc();
 setupSliders();
+setupRepeatInputs();
 setupRoadmapInputs();
 renderForecast();
 renderScenario();
+renderRepeat();
 
 window.addEventListener('resize', function(){
-  renderTrend(); renderChannel(true); renderDowHod(); renderDispatch(); renderCharges(); renderRD(); renderProfitability(); renderForecast(); renderScenario(); renderRoadmap();
+  renderTrend(); renderChannel(true); renderDowHod(); renderDispatch(); renderCharges(); renderRD(); renderProfitability(); renderForecast(); renderScenario(); renderRepeat(); renderRoadmap(); renderCalc();
 });
 
 })();
