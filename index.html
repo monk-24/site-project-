@@ -345,7 +345,7 @@
         <table class="datatable" id="calcTable"></table>
       </div>
       <div class="scenario-result" id="calcResult" style="margin-top:14px;"></div>
-      <p class="footnote caveat">Uses the same cost assumptions as Profitability above — edit them there and this calculator updates too. Royalties and the platform fee apply to the net sales figure you enter; rent, utilities and business rates are pro-rated by the days you set; payroll uses the weekday/weekend counts you set.</p>
+      <p class="footnote caveat">Starts from the same figures as Profitability above, but every expense here is its own copy — edit sales, days or any cost freely without changing the real analysis above. Royalties and the platform fee apply to the net sales figure you enter; rent, utilities and business rates are pro-rated by the days you set; payroll uses the weekday/weekend counts you set.</p>
     </div>
   </section>
 
@@ -1685,28 +1685,43 @@ function renderProfitForecast(){
 }
 
 /* ================= PROFIT CALCULATOR ================= */
-var CALC_STATE = { netSales: 15316, weekdays: 22, weekends: 9 };
+var CALC_STATE = {
+  netSales: 15316, weekdays: 22, weekends: 9,
+  rentPerQuarter: PROFIT_CFG.rentPerQuarter,
+  royaltyPct: PROFIT_CFG.royaltyPct,
+  platformPct: PROFIT_CFG.platformPct,
+  payrollWeekday: PROFIT_CFG.payrollWeekday,
+  payrollWeekend: PROFIT_CFG.payrollWeekend,
+  utilityPerMonth: PROFIT_CFG.utilityPerMonth,
+  ratesPerYear: PROFIT_CFG.ratesPerYear,
+  platformScope: PROFIT_CFG.platformScope
+};
+function calcPlatformLabel(){
+  return CALC_STATE.platformScope==='vendor' ? 'Uber Eats, Deliveroo, Just Eat'
+       : CALC_STATE.platformScope==='online' ? 'Flipdish, Uber Eats, Deliveroo, Just Eat'
+       : 'all sales';
+}
 function computeProfitCalc(netSales, weekdays, weekends){
   var days = weekdays + weekends;
   var lifetimeNet = MONTHS.reduce(function(s,m){return s+m.net_sales;},0);
   var vendorShare = sourcesSum(MONTHS, VENDOR_SOURCES)/lifetimeNet;
   var onlineShare = sourcesSum(MONTHS, ONLINE_SOURCES)/lifetimeNet;
-  var platformBase = PROFIT_CFG.platformScope==='vendor' ? netSales*vendorShare
-                    : PROFIT_CFG.platformScope==='online' ? netSales*onlineShare
+  var platformBase = CALC_STATE.platformScope==='vendor' ? netSales*vendorShare
+                    : CALC_STATE.platformScope==='online' ? netSales*onlineShare
                     : netSales;
-  var royalties = netSales * PROFIT_CFG.royaltyPct/100;
-  var platformFees = platformBase * PROFIT_CFG.platformPct/100;
-  var rent = PROFIT_CFG.rentPerQuarter*4/365 * days;
-  var utility = PROFIT_CFG.utilityPerMonth*12/365 * days;
-  var rates = PROFIT_CFG.ratesPerYear/365 * days;
-  var payroll = weekdays*PROFIT_CFG.payrollWeekday + weekends*PROFIT_CFG.payrollWeekend;
+  var royalties = netSales * CALC_STATE.royaltyPct/100;
+  var platformFees = platformBase * CALC_STATE.platformPct/100;
+  var rent = CALC_STATE.rentPerQuarter*4/365 * days;
+  var utility = CALC_STATE.utilityPerMonth*12/365 * days;
+  var rates = CALC_STATE.ratesPerYear/365 * days;
+  var payroll = weekdays*CALC_STATE.payrollWeekday + weekends*CALC_STATE.payrollWeekend;
   var totalCosts = royalties+platformFees+rent+utility+rates+payroll;
   var netProfit = netSales - totalCosts;
   return {netSales:netSales, royalties:royalties, platformFees:platformFees, rent:rent, utility:utility, rates:rates, payroll:payroll, days:days, totalCosts:totalCosts, netProfit:netProfit, marginPct: netSales?netProfit/netSales*100:0};
 }
 function setupCalcInputs(){
   var wrap = document.getElementById('calcInputs');
-  wrap.innerHTML =
+  var html =
     '<div class="cost-row" style="margin-top:0;"><span class="clabel" style="min-width:170px;font-weight:600;color:var(--ink-primary);">Net sales</span>'+
     '<span class="cwrap"><span class="cprefix">£</span><input type="number" min="0" step="100" value="'+CALC_STATE.netSales+'" id="calc-netSales" class="cost-input" style="width:110px;"></span><span class="clabel">ex-VAT</span></div>'+
     '<div class="cost-row"><span class="clabel" style="min-width:170px;">Weekdays in period</span>'+
@@ -1719,6 +1734,35 @@ function setupCalcInputs(){
       '<button data-w="65" data-e="26">1 quarter</button>'+
       '<button data-w="261" data-e="104">1 year</button>'+
     '</div></div>';
+
+  html += '<p class="sectiontitle" style="margin-bottom:2px;margin-top:14px;">Business expenses — edit freely, independent of Profitability above</p>';
+  var expenseDefs = [
+    {key:'rentPerQuarter', label:'Rent', prefix:'£', suffix:'/ quarter', step:10},
+    {key:'royaltyPct', label:'Royalties', prefix:'', suffix:'% of net sales', step:0.5, isPct:true},
+    {key:'platformPct', label:'Online platform fee', prefix:'', suffix:'%', step:0.5, isPct:true},
+    {key:'payrollWeekday', label:'Payroll — weekday', prefix:'£', suffix:'/ day', step:10},
+    {key:'payrollWeekend', label:'Payroll — weekend day', prefix:'£', suffix:'/ day', step:10},
+    {key:'utilityPerMonth', label:'Utilities', prefix:'£', suffix:'/ month', step:10},
+    {key:'ratesPerYear', label:'Business rates', prefix:'£', suffix:'/ year', step:100}
+  ];
+  expenseDefs.forEach(function(d){
+    html += '<div class="cost-row"><span class="clabel" style="min-width:170px;">'+d.label+'</span>'+
+      '<span class="cwrap">'+(d.prefix?'<span class="cprefix">'+d.prefix+'</span>':'')+
+      '<input type="number" min="0" step="'+d.step+'" value="'+CALC_STATE[d.key]+'" id="calce-'+d.key+'" class="cost-input" style="width:76px;">'+
+      (d.isPct?'<span class="cprefix">%</span>':'')+'</span>'+
+      '<span class="clabel">'+d.suffix.replace('%','').trim()+'</span></div>';
+  });
+  html += '<div class="controls" style="margin-top:4px;">'+
+    '<span class="flabel" style="margin-right:6px;">Online platform fee applies to</span>'+
+    '<div class="segmented" id="calcPlatformScope">'+
+      '<button data-scope="vendor">Marketplace vendors only</button>'+
+      '<button data-scope="online">All online (+ Flipdish)</button>'+
+      '<button data-scope="all">All sales</button>'+
+    '</div></div>';
+
+  wrap.innerHTML = html;
+  document.querySelector('#calcPlatformScope button[data-scope="'+CALC_STATE.platformScope+'"]').classList.add('active');
+
   ['netSales','weekdays','weekends'].forEach(function(key){
     document.getElementById('calc-'+key).addEventListener('input', function(ev){
       CALC_STATE[key] = Math.max(0, parseFloat(ev.target.value)||0);
@@ -1733,6 +1777,19 @@ function setupCalcInputs(){
     document.getElementById('calc-weekends').value = CALC_STATE.weekends;
     renderCalc();
   });
+  expenseDefs.forEach(function(d){
+    document.getElementById('calce-'+d.key).addEventListener('input', function(ev){
+      CALC_STATE[d.key] = Math.max(0, parseFloat(ev.target.value)||0);
+      renderCalc();
+    });
+  });
+  document.getElementById('calcPlatformScope').addEventListener('click', function(ev){
+    var btn = ev.target.closest('button'); if (!btn) return;
+    this.querySelectorAll('button').forEach(function(b){b.classList.remove('active');});
+    btn.classList.add('active');
+    CALC_STATE.platformScope = btn.dataset.scope;
+    renderCalc();
+  });
 }
 function renderCalc(){
   if (!document.getElementById('calcTable')) return;
@@ -1740,8 +1797,8 @@ function renderCalc(){
   var marginColor = p.netProfit>=0 ? 'var(--good)' : 'var(--bad)';
   var rows = [
     ['Net sales (ex-VAT)', p.netSales, null],
-    ['Royalties ('+PROFIT_CFG.royaltyPct+'% of net sales)', -p.royalties, p.netSales?p.royalties/p.netSales*100:0],
-    ['Online platform fee ('+PROFIT_CFG.platformPct+'% of '+platformLabel()+')', -p.platformFees, p.netSales?p.platformFees/p.netSales*100:0],
+    ['Royalties ('+CALC_STATE.royaltyPct+'% of net sales)', -p.royalties, p.netSales?p.royalties/p.netSales*100:0],
+    ['Online platform fee ('+CALC_STATE.platformPct+'% of '+calcPlatformLabel()+')', -p.platformFees, p.netSales?p.platformFees/p.netSales*100:0],
     ['Rent ('+p.days+' days pro-rated)', -p.rent, p.netSales?p.rent/p.netSales*100:0],
     ['Utilities', -p.utility, p.netSales?p.utility/p.netSales*100:0],
     ['Business rates', -p.rates, p.netSales?p.rates/p.netSales*100:0],
