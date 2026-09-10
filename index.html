@@ -514,12 +514,10 @@
       </div>
     </div>
     <div class="card forecast-card">
-      <p class="sectiontitle" style="margin-top:0;">Baseline run-rate</p>
-      <div class="cost-row" style="margin-top:0;">
-        <span class="clabel" style="min-width:220px;font-weight:600;color:var(--ink-primary);">Expected month-on-month change</span>
-        <span class="cwrap"><input type="number" step="0.5" value="0" id="fc-growth" class="cost-input" style="width:60px;"><span class="cprefix">%</span></span>
-      </div>
-      <div class="stat-strip" id="forecastStats" style="margin-top:16px;"></div>
+      <p class="sectiontitle" style="margin-top:0;">Expected growth, month by month</p>
+      <p style="font-size:12.5px;color:var(--ink-muted);margin:-6px 0 14px;">Each slider is growth over the <i>previous</i> month's run-rate, so they build on each other toward December</p>
+      <div class="sliders" id="forecastGrowthSliders"></div>
+      <div class="stat-strip" id="forecastStats" style="margin-top:6px;"></div>
       <div class="chartbox" id="forecastChart"></div>
       <div class="tablewrap"><table class="datatable" id="forecastTable"></table></div>
       <p class="footnote caveat" id="forecastCaveat"></p>
@@ -1883,12 +1881,33 @@ function runRateDailyAvg(){
   var sum = recent.reduce(function(s,d){return s+d.net_sales;},0);
   return sum/recent.length;
 }
-function computeForecast(growthPct){
+var FORECAST_GROWTH = {'2026-09':10, '2026-10':11, '2026-11':12, '2026-12':13};
+function setupForecastGrowthSliders(){
+  var wrap = document.getElementById('forecastGrowthSliders');
+  wrap.innerHTML = '';
+  FORECAST_MONTHS.forEach(function(m){
+    var pct = FORECAST_GROWTH[m.key];
+    var row = document.createElement('div'); row.className='slider-row';
+    row.innerHTML =
+      '<div class="srow-top"><span class="sname">'+m.label+'<small>Growth vs the previous month\'s run-rate</small></span><span class="sval" id="fgval-'+m.key+'">'+(pct>=0?'+':'')+pct+'%</span></div>'+
+      '<input type="range" min="-30" max="40" value="'+pct+'" id="fgrange-'+m.key+'">';
+    wrap.appendChild(row);
+    row.querySelector('#fgrange-'+m.key).addEventListener('input', function(ev){
+      FORECAST_GROWTH[m.key] = parseInt(ev.target.value,10);
+      var v = FORECAST_GROWTH[m.key];
+      document.getElementById('fgval-'+m.key).textContent = (v>=0?'+':'')+v+'%';
+      renderForecast();
+    });
+  });
+}
+function computeForecast(){
   var dailyAvg = runRateDailyAvg();
-  var targets = FORECAST_MONTHS.map(function(m, idx){
-    var factor = Math.pow(1+growthPct/100, idx+1);
-    var netSales = dailyAvg * m.days * factor;
-    return {month:m.key, label:m.label, days:m.days, net_sales: netSales};
+  var runningDaily = dailyAvg;
+  var targets = FORECAST_MONTHS.map(function(m){
+    var pct = FORECAST_GROWTH[m.key] || 0;
+    runningDaily = runningDaily * (1 + pct/100);
+    var netSales = runningDaily * m.days;
+    return {month:m.key, label:m.label, days:m.days, net_sales: netSales, dailyAvg: runningDaily};
   });
   return {dailyAvg:dailyAvg, targets:targets};
 }
@@ -1929,15 +1948,14 @@ function computeProfitHypothetical(netSales, fromDate, toDate){
 }
 var LAST_FORECAST = null;
 function renderForecast(){
-  var growthPct = parseFloat(document.getElementById('fc-growth').value) || 0;
-  var fc = computeForecast(growthPct);
+  var fc = computeForecast();
   var monthRows = fc.targets.map(function(t){
     var b = plainMonthBounds(t.month);
     var cw = countAllCalendarDays(b.start, b.end);
     var profit = computeProfitHypothetical(t.net_sales, b.start, b.end);
     return {month:t.month, label:t.label, days:t.days, net_sales:t.net_sales, weekdays:cw.weekday, weekends:cw.weekend, profit:profit.netProfit, marginPct:profit.marginPct};
   });
-  LAST_FORECAST = {growthPct:growthPct, months:monthRows};
+  LAST_FORECAST = {growth:FORECAST_GROWTH, months:monthRows};
 
   var totalProjected = monthRows.reduce(function(s,t){return s+t.net_sales;},0);
   var profitTotal = monthRows.reduce(function(s,t){return s+t.profit;},0);
@@ -1968,11 +1986,10 @@ function renderForecast(){
   document.getElementById('forecastTable').innerHTML = thtml;
 
   document.getElementById('forecastCaveat').textContent =
-    'Baseline uses the average daily net sales from the last 14 trading days of August (' + fmtGBP(fc.dailyAvg,2) + '/day), projected forward for each month\'s day count using the current Profitability cost assumptions. There is no prior-year August to compare against yet, so this is a simple run-rate estimate, not a year-on-year forecast — set "expected month-on-month change" above to model growth or decline.';
+    'Baseline uses the average daily net sales from the last 14 trading days of August (' + fmtGBP(fc.dailyAvg,2) + '/day). Each month\'s slider compounds onto the previous month\'s projected run-rate — so December reflects Sep, Oct and Nov\'s growth stacked together, not just its own slider. There is no prior-year August to compare against yet, so this is an illustrative growth-path estimate, not a year-on-year forecast — the starting percentages are a placeholder ramp into the festive season, not specific to this business, so adjust every slider to your own read of the season.';
 
   renderScenario();
 }
-document.getElementById('fc-growth').addEventListener('input', renderForecast);
 
 /* ================= MARKETING SCENARIO ================= */
 var SCENARIO_MONTHS = 4;
@@ -2009,8 +2026,7 @@ function setupSliders(){
 function renderScenario(){
   var box = document.getElementById('scenarioChart');
   if (!box) return;
-  var growthPct = parseFloat(document.getElementById('fc-growth').value) || 0;
-  var fc = computeForecast(growthPct);
+  var fc = computeForecast();
   var channels = ['leaflet','digital','field'];
   var totalUplift = channels.reduce(function(s,k){return s+scenarioState[k].pct;},0) / 100;
   var monthlyCost = channels.reduce(function(s,k){return s+scenarioState[k].cost;},0);
@@ -2069,6 +2085,7 @@ setupProfitInputs();
 setupCalcInputs();
 renderCalc();
 setupSliders();
+setupForecastGrowthSliders();
 renderForecast();
 
 window.addEventListener('resize', function(){
