@@ -35,7 +35,8 @@
   }
   /* This dashboard is deliberately light-only — no dark-mode variant. */
 
-  *{ box-sizing: border-box; }
+  *{ box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html{ -webkit-text-size-adjust: 100%; }
   body{
     margin:0;
     background: var(--surface-page);
@@ -43,7 +44,47 @@
     font-family: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
     -webkit-font-smoothing: antialiased;
   }
-  .wrap{ max-width: 1180px; margin: 0 auto; padding: 28px 20px 64px; }
+  .wrap{ max-width: 1180px; margin: 0 auto; padding: 16px 14px 56px; }
+  @media (min-width:860px){ .wrap{ padding: 28px 20px 64px; } }
+
+  /* ===== Headline / at-a-glance hero (mobile-first) ===== */
+  .hero{
+    background: linear-gradient(155deg, var(--accent-strong), var(--accent) 70%);
+    color:#fff; border-radius:16px; padding:20px 18px 18px; margin-bottom:16px;
+    box-shadow: 0 10px 30px -14px rgba(127,47,31,0.55);
+  }
+  .hero-eyebrow{ font:600 11px "IBM Plex Mono",monospace; letter-spacing:.1em; text-transform:uppercase; opacity:.85; margin:0 0 4px; }
+  .hero-period{ font:700 15px "Archivo",sans-serif; margin:0 0 14px; }
+  .hero-grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .hero-stat .l{ font-size:11px; text-transform:uppercase; letter-spacing:.05em; opacity:.8; font-weight:600; }
+  .hero-stat .v{ font:700 26px/1.15 "IBM Plex Mono",monospace; margin-top:3px; letter-spacing:-.01em; }
+  .hero-stat .trend{ display:inline-flex; align-items:center; gap:4px; font:600 12.5px "IBM Plex Mono",monospace; margin-top:5px; padding:2px 8px; border-radius:20px; background:rgba(255,255,255,.16); }
+  .hero-stat .trend.up{ background:rgba(255,255,255,.22); }
+  .hero-take{
+    margin-top:16px; padding-top:14px; border-top:1px solid rgba(255,255,255,.22);
+    font-size:13.5px; line-height:1.55; opacity:.96;
+  }
+  @media (min-width:860px){
+    .hero{ padding:26px 28px 24px; }
+    .hero-grid{ grid-template-columns:repeat(4,1fr); gap:20px; }
+    .hero-stat .v{ font-size:30px; }
+  }
+
+  /* ===== Collapsible "advanced tool" sections ===== */
+  details.adv{
+    background:var(--surface-card); border:1px solid var(--border); border-radius:12px;
+    box-shadow:var(--shadow); overflow:hidden;
+  }
+  details.adv + details.adv{ margin-top:12px; }
+  details.adv summary{
+    list-style:none; cursor:pointer; padding:15px 18px; display:flex; align-items:center; gap:10px;
+    font:700 13.5px "Archivo",sans-serif; color:var(--ink-primary); min-height:24px;
+  }
+  details.adv summary::-webkit-details-marker{ display:none; }
+  details.adv summary .chev{ margin-left:auto; color:var(--ink-muted); transition:transform .15s ease; flex:none; }
+  details.adv[open] summary .chev{ transform:rotate(180deg); }
+  details.adv summary .adv-sub{ font:400 12px "IBM Plex Sans",sans-serif; color:var(--ink-muted); display:block; margin-top:2px; }
+  details.adv .adv-body{ padding:0 18px 18px; border-top:1px solid var(--border); padding-top:16px; }
 
   .demo-banner{
     background:var(--accent-wash); border:1px solid var(--accent); border-radius:10px;
@@ -87,28 +128,58 @@
   .masthead .meta b{ color:var(--ink-secondary); font-weight:600; }
 
   .filterbar{
-    display:flex; flex-direction:column; gap:10px;
-    background:var(--surface-card); border:1px solid var(--border); border-radius:10px;
-    padding:10px 14px; margin-bottom:22px; box-shadow:var(--shadow);
+    display:flex; flex-direction:column; gap:12px;
+    background:var(--surface-card); border:1px solid var(--border); border-radius:14px;
+    padding:14px; margin-bottom:16px; box-shadow:var(--shadow);
   }
   .filterbar-row{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
   .filterbar .flabel{ font:600 11px "IBM Plex Sans",sans-serif; letter-spacing:.05em; text-transform:uppercase; color:var(--ink-muted); }
+
+  /* period-type segmented: big touch targets on mobile */
+  .period-toggle{ display:flex; background:var(--grid); border-radius:10px; padding:3px; gap:3px; }
+  .period-toggle button{
+    flex:1; appearance:none; border:0; background:transparent; color:var(--ink-secondary);
+    font:600 13px "IBM Plex Sans",sans-serif; padding:10px 8px; border-radius:8px; cursor:pointer; min-height:40px;
+  }
+  .period-toggle button.active{ background:var(--surface-raised); color:var(--accent-strong); box-shadow:0 1px 3px rgba(0,0,0,.1); }
+  .period-toggle button:focus-visible{ outline:2px solid var(--accent); outline-offset:1px; }
+
+  .period-nav{ display:flex; align-items:stretch; gap:8px; }
+  .period-nav .navbtn{
+    appearance:none; border:1px solid var(--border); background:var(--surface-raised); color:var(--ink-secondary);
+    font-size:16px; width:44px; min-height:44px; border-radius:9px; cursor:pointer; flex:none;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .period-nav .navbtn:active{ background:var(--grid); }
+  .period-nav .navbtn:disabled{ opacity:.35; cursor:not-allowed; }
+  .period-nav .fselect{ flex:1; min-height:44px; }
+
   .filterbar .fselect{
-    appearance:none; border:1px solid var(--border); background:var(--surface-raised) url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2210%22 height=%226%22 viewBox=%220 0 10 6%22><path d=%22M1 1l4 4 4-4%22 stroke=%22%2388909a%22 stroke-width=%221.4%22 fill=%22none%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/></svg>') no-repeat right 9px center;
-    color:var(--ink-primary); font:500 12px "IBM Plex Sans",sans-serif; padding:6px 26px 6px 10px;
-    border-radius:7px; cursor:pointer;
+    appearance:none; border:1px solid var(--border); background:var(--surface-raised) url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2210%22 height=%226%22 viewBox=%220 0 10 6%22><path d=%22M1 1l4 4 4-4%22 stroke=%22%2388909a%22 stroke-width=%221.4%22 fill=%22none%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/></svg>') no-repeat right 12px center;
+    color:var(--ink-primary); font:500 13.5px "IBM Plex Sans",sans-serif; padding:9px 30px 9px 12px;
+    border-radius:9px; cursor:pointer;
   }
   .filterbar .fselect:focus-visible{ outline:2px solid var(--accent); outline-offset:1px; }
   .filterbar .fselect:disabled{ opacity:.5; cursor:not-allowed; }
   .filterbar .fdate{
     border:1px solid var(--border); background:var(--surface-raised); color:var(--ink-primary);
-    font:500 12px "IBM Plex Mono",monospace; padding:5px 10px; border-radius:7px; cursor:pointer;
-    color-scheme: light;
+    font:500 13.5px "IBM Plex Mono",monospace; padding:9px 10px; border-radius:9px; cursor:pointer;
+    color-scheme: light; min-height:44px;
   }
   .filterbar .fdate:focus-visible{ outline:2px solid var(--accent); outline-offset:1px; }
   .filterbar .rangepill{
-    margin-left:auto; font:600 11.5px "IBM Plex Mono",monospace; color:var(--accent);
-    background:var(--accent-wash); padding:5px 10px; border-radius:20px;
+    font:600 12px "IBM Plex Mono",monospace; color:var(--accent);
+    background:var(--accent-wash); padding:6px 11px; border-radius:20px;
+  }
+  @media (min-width:860px){
+    .period-toggle{ max-width:280px; }
+    .period-toggle button{ min-height:34px; padding:7px 10px; }
+    .period-nav .navbtn{ min-height:36px; width:36px; }
+    .period-nav .fselect{ min-width:220px; flex:none; }
+    .filterbar .fselect, .filterbar .fdate{ min-height:34px; padding-top:6px; padding-bottom:6px; }
+    .filterbar-row:last-child{ margin-left:auto; }
+    .filterbar{ flex-direction:row; flex-wrap:wrap; align-items:center; }
+    .filterbar-row:first-child{ flex:none; }
   }
 
   .kpis{
@@ -202,13 +273,20 @@
   table.datatable thead th{ color:var(--ink-muted); font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:.04em; font-family:"IBM Plex Sans",sans-serif; }
   table.datatable tfoot td{ font-weight:600; border-top:1.5px solid var(--baseline); border-bottom:none; color:var(--ink-primary); }
   table.heatmap{ table-layout:fixed; }
-  table.heatmap th, table.heatmap td{ text-align:center; padding:6px 4px; border-bottom:1px solid var(--border); }
-  table.heatmap th:first-child, table.heatmap td:first-child{ text-align:right; padding-right:8px; white-space:nowrap; width:64px; }
+  table.heatmap th, table.heatmap td{ text-align:center; padding:7px 3px; border-bottom:1px solid var(--border); min-width:40px; }
+  table.heatmap th:first-child, table.heatmap td:first-child{ text-align:right; padding-right:8px; white-space:nowrap; width:58px; min-width:58px; }
   table.heatmap thead th{ text-align:center; }
-  table.heatmap td.heatcell-max{ box-shadow:inset 0 0 0 2px var(--accent); border-radius:4px; font-weight:700; color:var(--accent-strong); }
+  table.heatmap td.heatcell-max{ box-shadow:inset 0 0 0 2px var(--accent); border-radius:4px; }
   table.heatmap td.heatcell-closed{
     background:repeating-linear-gradient(45deg, var(--grid), var(--grid) 5px, transparent 5px, transparent 10px) !important;
     color:var(--ink-muted); font-size:10px;
+  }
+  .hc-orders{ font:700 12.5px "IBM Plex Mono",monospace; color:var(--ink-primary); line-height:1.2; }
+  .heatcell-max .hc-orders{ color:var(--accent-strong); }
+  .hc-net{ font:500 9px "IBM Plex Mono",monospace; color:var(--ink-muted); line-height:1.2; margin-top:1px; }
+  @media (min-width:860px){
+    table.heatmap th, table.heatmap td{ padding:8px 4px; }
+    .hc-orders{ font-size:13px; } .hc-net{ font-size:10px; }
   }
   .opening-hours{ display:grid; grid-template-columns:repeat(auto-fit, minmax(160px,1fr)); gap:10px; }
   .opening-hours .oh-row{
@@ -303,26 +381,38 @@
 
   <div class="filterbar">
     <div class="filterbar-row">
-      <span class="flabel">Dates</span>
-      <input type="date" class="fdate" id="dateFrom">
-      <span class="flabel">to</span>
-      <input type="date" class="fdate" id="dateTo">
-      <div class="segmented" id="datePresets"></div>
+      <div class="period-toggle" id="periodToggle">
+        <button type="button" data-period="month" class="active">Month</button>
+        <button type="button" data-period="week">Week</button>
+        <button type="button" data-period="day">Day</button>
+      </div>
+      <span class="rangepill" id="rangePill"></span>
     </div>
     <div class="filterbar-row">
-      <span class="flabel">Month</span>
-      <select class="fselect" id="monthFilter"></select>
+      <div class="period-nav">
+        <button type="button" class="navbtn" id="periodPrev" aria-label="Previous period">‹</button>
+        <select class="fselect" id="monthFilter"></select>
+        <select class="fselect hidden" id="weekFilter"></select>
+        <input type="date" class="fdate hidden" id="dayFilter">
+        <button type="button" class="navbtn" id="periodNext" aria-label="Next period">›</button>
+      </div>
+    </div>
+    <div class="filterbar-row">
       <span class="flabel">Channel</span>
       <select class="fselect" id="channelFilter"></select>
       <span class="flabel">Fulfilment</span>
       <select class="fselect" id="dispatchFilter"></select>
       <button class="tablebtn" id="filterReset" style="display:none;">Reset filters</button>
-      <span class="rangepill" id="rangePill"></span>
     </div>
     <p class="footnote" id="detailNotice" style="display:none;margin:0;">Outside August 2026, only day-by-day totals are available — channel/fulfilment filtering, the busiest-hour heatmap and exact staffing counts are shown for August 2026 only.</p>
   </div>
 
-  <div class="kpis" id="kpiRow"></div>
+  <div class="hero">
+    <p class="hero-eyebrow">At a glance</p>
+    <p class="hero-period" id="heroPeriod"></p>
+    <div class="hero-grid" id="heroGrid"></div>
+    <p class="hero-take" id="heroTakeaway"></p>
+  </div>
 
   <section>
     <div class="section-head">
@@ -339,7 +429,37 @@
   <section>
     <div class="section-head">
       <div>
-        <h2>Daily net sales</h2>
+        <h2>Profitability <span class="badge">Estimate</span></h2>
+        <p id="profitSub">Net profit for the selected range</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="stat-strip" id="profitStats"></div>
+      <div class="tablewrap"><table class="datatable" id="profitTable"></table></div>
+    </div>
+    <details class="adv" style="margin-top:12px;">
+      <summary>Edit cost assumptions<span class="chev">▾</span></summary>
+      <div class="adv-body">
+        <p class="sectiontitle" style="margin-top:0;">All figures apply to net sales (ex-VAT)</p>
+        <div class="sliders" id="profitInputs"></div>
+        <div class="controls" style="margin-top:4px;">
+          <span class="flabel" style="margin-right:6px;">Online platform fee applies to</span>
+          <div class="segmented" id="platformScopeToggle">
+            <button data-scope="vendor" class="active">Marketplace vendors only</button>
+            <button data-scope="online">All online (+ Flipdish)</button>
+            <button data-scope="all">All sales</button>
+            <button data-scope="split">Split: 7% Flipdish / 13% vendors</button>
+          </div>
+        </div>
+        <p class="footnote caveat">Rent (£8,150/quarter), utilities (£1,000/month) and business rates (£15,000/year) are pro-rated evenly by calendar day. Payroll is £200 for each weekday and £300 for each weekend day with at least one order. Royalties (5%), food cost (10%) and the platform fee apply to net sales (ex-VAT). Adjust any figure above if your actual terms differ.</p>
+      </div>
+    </details>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <div>
+        <h2 id="dailyTitle">Daily net sales</h2>
         <p id="dailySub">Every day in the selected range</p>
       </div>
     </div>
@@ -363,7 +483,31 @@
       <p class="sectiontitle" style="margin-top:0;">Busiest day &amp; hour combination</p>
       <p class="footnote" id="heatmapCallout" style="margin-top:-4px;"></p>
       <div class="tablewrap"><table class="datatable heatmap" id="heatmapTable"></table></div>
-      <p class="footnote" style="margin-top:10px;">Each cell totals orders placed in that hour, on that day of the week, across the selected date range — darker means busier. Hover a cell for net sales.</p>
+      <p class="footnote" style="margin-top:10px;">Each cell shows orders placed (bold) and net sales (below) for that hour, on that day of the week — darker means busier. Hover a cell for the full figure.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <div>
+        <h2>Order mix</h2>
+        <p>Where orders came from, how they were fulfilled, and how they were paid for</p>
+      </div>
+    </div>
+    <div class="grid3">
+      <div class="card">
+        <p class="sectiontitle" style="margin-top:0;">Sales channel</p>
+        <div class="meterlist" id="channelList"></div>
+        <p class="footnote" id="repeatNote" style="margin-top:14px;">Note: this export has no customer ID, email or phone field, so a first-time vs repeat customer split can't be calculated from this data — only order-level channel, timing and payment detail is available.</p>
+      </div>
+      <div class="card">
+        <p class="sectiontitle" style="margin-top:0;">Dispatch type</p>
+        <div class="meterlist" id="dispatchList"></div>
+      </div>
+      <div class="card">
+        <p class="sectiontitle" style="margin-top:0;">Payment method</p>
+        <div class="meterlist" id="paymentList"></div>
+      </div>
     </div>
   </section>
 
@@ -409,30 +553,6 @@
   <section>
     <div class="section-head">
       <div>
-        <h2>Order mix</h2>
-        <p>Where orders came from, how they were fulfilled, and how they were paid for</p>
-      </div>
-    </div>
-    <div class="grid3">
-      <div class="card">
-        <p class="sectiontitle" style="margin-top:0;">Sales channel</p>
-        <div class="meterlist" id="channelList"></div>
-        <p class="footnote" id="repeatNote" style="margin-top:14px;">Note: this export has no customer ID, email or phone field, so a first-time vs repeat customer split can't be calculated from this data — only order-level channel, timing and payment detail is available.</p>
-      </div>
-      <div class="card">
-        <p class="sectiontitle" style="margin-top:0;">Dispatch type</p>
-        <div class="meterlist" id="dispatchList"></div>
-      </div>
-      <div class="card">
-        <p class="sectiontitle" style="margin-top:0;">Payment method</p>
-        <div class="meterlist" id="paymentList"></div>
-      </div>
-    </div>
-  </section>
-
-  <section>
-    <div class="section-head">
-      <div>
         <h2>Delivery charges</h2>
         <p>What's charged to customers to cover delivery — and when it's collected</p>
       </div>
@@ -459,80 +579,54 @@
   <section>
     <div class="section-head">
       <div>
-        <h2>Profitability <span class="badge">Estimate</span></h2>
-        <p id="profitSub">Net profit for the selected range, after rent, royalties, food cost, platform fees, payroll, utilities and business rates</p>
-      </div>
-      <button class="tablebtn" id="profitConfigBtn" aria-expanded="false">Edit cost assumptions</button>
-    </div>
-    <div class="card forecast-card" id="profitConfigCard" style="display:none;">
-      <p class="sectiontitle" style="margin-top:0;">Cost assumptions — all figures apply to net sales (ex-VAT)</p>
-      <div class="sliders" id="profitInputs"></div>
-      <div class="controls" style="margin-top:4px;">
-        <span class="flabel" style="margin-right:6px;">Online platform fee applies to</span>
-        <div class="segmented" id="platformScopeToggle">
-          <button data-scope="vendor" class="active">Marketplace vendors only</button>
-          <button data-scope="online">All online (+ Flipdish)</button>
-          <button data-scope="all">All sales</button>
-          <button data-scope="split">Split: 7% Flipdish / 13% vendors</button>
-        </div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="stat-strip" id="profitStats"></div>
-      <div class="tablewrap"><table class="datatable" id="profitTable"></table></div>
-    </div>
-    <p class="footnote caveat">Rent (£8,150/quarter), utilities (£1,000/month) and business rates (£15,000/year) are pro-rated evenly by calendar day. Payroll is £200 for each weekday and £300 for each weekend day with at least one order. Royalties (5%), food cost (10%) and the platform fee (15%, editable scope above) apply to net sales (ex-VAT). Adjust any figure above if your actual terms differ.</p>
-  </section>
-
-  <section>
-    <div class="section-head">
-      <div>
-        <h2>Profit calculator</h2>
-        <p>Type in any sales figure and period length to see the profit it would produce</p>
-      </div>
-    </div>
-    <div class="card forecast-card">
-      <div class="controls" style="margin-bottom:14px;">
-        <span class="flabel" style="margin-right:6px;">Load a forecast month</span>
-        <div class="segmented" id="calcForecastFill">
-          <button data-month="2026-09">Sep 26</button>
-          <button data-month="2026-10">Oct 26</button>
-          <button data-month="2026-11">Nov 26</button>
-          <button data-month="2026-12">Dec 26</button>
-        </div>
-      </div>
-      <div class="sliders" id="calcInputs"></div>
-      <div class="tablewrap"><table class="datatable" id="calcTable"></table></div>
-      <div class="scenario-result" id="calcResult" style="margin-top:14px;"></div>
-      <p class="footnote caveat">Starts from the same figures as Profitability above, but every expense here is its own copy — edit sales, days or any cost freely without changing the real analysis above. "Load a forecast month" pulls the projected net sales and weekday/weekend split from the Sales &amp; profit forecast section below, using its current growth-rate assumption.</p>
-    </div>
-  </section>
-
-  <section>
-    <div class="section-head">
-      <div>
         <h2>Sales &amp; profit forecast <span class="badge">Estimate</span></h2>
         <p>Projected forward from recent trading pace</p>
       </div>
     </div>
     <div class="card forecast-card">
-      <p class="sectiontitle" style="margin-top:0;">Expected growth, month by month</p>
-      <p style="font-size:12.5px;color:var(--ink-muted);margin:-6px 0 14px;">Each slider is growth over the <i>previous</i> month's run-rate, so they build on each other toward December</p>
-      <div class="sliders" id="forecastGrowthSliders"></div>
-      <div class="stat-strip" id="forecastStats" style="margin-top:6px;"></div>
+      <div class="stat-strip" id="forecastStats" style="margin-top:0;"></div>
       <div class="chartbox" id="forecastChart"></div>
       <div class="tablewrap"><table class="datatable" id="forecastTable"></table></div>
       <p class="footnote caveat" id="forecastCaveat"></p>
     </div>
-    <div class="card forecast-card" style="margin-top:14px;">
-      <p class="sectiontitle" style="margin-top:0;">Marketing investment scenario</p>
-      <p style="font-size:12.5px;color:var(--ink-muted);margin:-6px 0 14px;">What Sep–Dec could look like with leaflets, digital ads and field marketing — like a Domino's-style local push</p>
-      <div class="sliders" id="sliders"></div>
-      <div class="legend" id="scenarioLegend"></div>
-      <div class="chartbox" id="scenarioChart"></div>
-      <div class="scenario-result" id="scenarioResult"></div>
-      <p class="footnote caveat">Both the uplift percentages and the monthly costs are illustrative planning assumptions — they are <b>not</b> specific to this business and are not a guaranteed outcome. Adjust the sliders and £/month costs to match your own campaign quotes or past results.</p>
-    </div>
+    <details class="adv" style="margin-top:12px;">
+      <summary>Adjust growth assumptions &amp; marketing scenario<span class="chev">▾</span></summary>
+      <div class="adv-body">
+        <p class="sectiontitle" style="margin-top:0;">Expected growth, month by month</p>
+        <p style="font-size:12.5px;color:var(--ink-muted);margin:-6px 0 14px;">Each slider is growth over the <i>previous</i> month's run-rate, so they build on each other toward December</p>
+        <div class="sliders" id="forecastGrowthSliders"></div>
+      </div>
+      <div class="adv-body" style="border-top:1px solid var(--border);">
+        <p class="sectiontitle" style="margin-top:0;">Marketing investment scenario</p>
+        <p style="font-size:12.5px;color:var(--ink-muted);margin:-6px 0 14px;">What Sep–Dec could look like with leaflets, digital ads and field marketing — like a Domino's-style local push</p>
+        <div class="sliders" id="sliders"></div>
+        <div class="legend" id="scenarioLegend"></div>
+        <div class="chartbox" id="scenarioChart"></div>
+        <div class="scenario-result" id="scenarioResult"></div>
+        <p class="footnote caveat">Both the uplift percentages and the monthly costs are illustrative planning assumptions — they are <b>not</b> specific to this business and are not a guaranteed outcome. Adjust the sliders and £/month costs to match your own campaign quotes or past results.</p>
+      </div>
+    </details>
+  </section>
+
+  <section>
+    <details class="adv">
+      <summary>Profit calculator<span class="adv-sub">Type in any sales figure and period length to see the profit it would produce</span><span class="chev">▾</span></summary>
+      <div class="adv-body">
+        <div class="controls" style="margin-bottom:14px;">
+          <span class="flabel" style="margin-right:6px;">Load a forecast month</span>
+          <div class="segmented" id="calcForecastFill">
+            <button data-month="2026-09">Sep 26</button>
+            <button data-month="2026-10">Oct 26</button>
+            <button data-month="2026-11">Nov 26</button>
+            <button data-month="2026-12">Dec 26</button>
+          </div>
+        </div>
+        <div class="sliders" id="calcInputs"></div>
+        <div class="tablewrap"><table class="datatable" id="calcTable"></table></div>
+        <div class="scenario-result" id="calcResult" style="margin-top:14px;"></div>
+        <p class="footnote caveat">Starts from the same figures as Profitability above, but every expense here is its own copy — edit sales, days or any cost freely without changing the real analysis above. "Load a forecast month" pulls the projected net sales and weekday/weekend split from the Sales &amp; profit forecast section above, using its current growth-rate assumption.</p>
+      </div>
+    </details>
   </section>
 
   <footer>
@@ -972,29 +1066,53 @@ var MONTH_OPTIONS = (function(){
     return {key:k, label: MONTH_NAMES[m]+' '+y+(i===0?' (latest)':''), from:start, to:end};
   });
 })();
-var DATE_PRESETS = (function(){
-  var presets = [{key:'all', label:'All time', from:DATA_MIN, to:DATA_MAX}];
-  var latest = MONTH_OPTIONS[0];
-  if (!latest) return presets;
-  var cursor = latest.from, idx = 1;
-  while (cursor <= latest.to){
+function mondayOnOrBefore(dateStr){
+  var d = new Date(dateStr+'T00:00:00Z');
+  var dow = (d.getUTCDay()+6)%7;
+  d.setUTCDate(d.getUTCDate()-dow);
+  return d.toISOString().slice(0,10);
+}
+var WEEK_OPTIONS = (function(){
+  var weeks = [];
+  var cursor = mondayOnOrBefore(DATA_MIN);
+  while (cursor <= DATA_MAX){
     var end = addDays(cursor, 6);
-    if (end > latest.to) end = latest.to;
-    presets.push({key:'p'+idx, label:'Week '+idx+' ('+fmtDateShort(cursor)+'–'+fmtDateShort(end)+')', from:cursor, to:end});
-    cursor = addDays(end, 1);
-    idx++;
+    var from = cursor < DATA_MIN ? DATA_MIN : cursor;
+    var to = end > DATA_MAX ? DATA_MAX : end;
+    var fromYear = from.slice(0,4), toYear = to.slice(0,4);
+    var label = fmtDateShort(from) + (fromYear!==toYear ? ' '+fromYear : '') + '–' + fmtDateShort(to) + ' ' + toYear;
+    weeks.push({key:cursor, label:label, from:from, to:to});
+    cursor = addDays(cursor, 7);
   }
-  return presets;
+  return weeks.reverse();
 })();
 function hasOrderLevelDetail(){
   return !!ORDERS_MIN && currentFrom >= ORDERS_MIN && currentTo <= ORDERS_MAX;
 }
-var DEFAULT_FROM = MONTH_OPTIONS.length ? MONTH_OPTIONS[0].from : DATA_MIN;
-var DEFAULT_TO = MONTH_OPTIONS.length ? MONTH_OPTIONS[0].to : DATA_MAX;
-var currentFrom = DEFAULT_FROM;
-var currentTo = DEFAULT_TO;
+var periodType = 'month';
+var currentMonthKey = MONTH_OPTIONS.length ? MONTH_OPTIONS[0].key : null;
+var currentWeekKey = (WEEK_OPTIONS.filter(function(w){return calendarDays(w.from,w.to)===7;})[0] || WEEK_OPTIONS[0] || {}).key || null;
+var currentDayKey = DATA_MAX;
 var currentChannel = 'all';
 var currentDispatch = 'all';
+var currentFrom, currentTo;
+function currentPeriodBounds(){
+  if (periodType === 'week'){
+    var w = WEEK_OPTIONS.filter(function(x){return x.key===currentWeekKey;})[0] || WEEK_OPTIONS[0];
+    return {from:w.from, to:w.to};
+  }
+  if (periodType === 'day'){
+    return {from:currentDayKey, to:currentDayKey};
+  }
+  var m = MONTH_OPTIONS.filter(function(x){return x.key===currentMonthKey;})[0] || MONTH_OPTIONS[0];
+  return {from:m.from, to:m.to};
+}
+function syncCurrentRange(){
+  var b = currentPeriodBounds();
+  currentFrom = b.from; currentTo = b.to;
+}
+syncCurrentRange();
+var DEFAULT_PERIOD_TYPE = 'month', DEFAULT_MONTH_KEY = currentMonthKey;
 
 function rangeDates(){ return {from: currentFrom, to: currentTo}; }
 function calendarDays(fromDate, toDate){
@@ -1025,15 +1143,27 @@ function aggDispatch(periods){
   });
   return out;
 }
-function weekLabel(){
-  if (currentFrom === DATA_MIN && currentTo === DATA_MAX) return 'All time';
+function weekRangeLabel(){
   if (currentFrom === currentTo) return fmtDateLong(currentFrom);
   var fromYear = currentFrom.slice(0,4), toYear = currentTo.slice(0,4);
   var fromLabel = fmtDateShort(currentFrom) + (fromYear!==toYear ? ' '+fromYear : '');
   return fromLabel + '–' + fmtDateShort(currentTo) + ' ' + toYear;
 }
+function weekLabel(){ return periodLabel(); }
+function periodLabel(){
+  if (periodType === 'month'){
+    var m = MONTH_OPTIONS.filter(function(x){return x.key===currentMonthKey;})[0];
+    if (m) return m.label.replace(' (latest)','');
+  } else if (periodType === 'week'){
+    var w = WEEK_OPTIONS.filter(function(x){return x.key===currentWeekKey;})[0];
+    if (w) return 'Week of ' + w.label;
+  } else if (periodType === 'day'){
+    return fmtDateLong(currentDayKey);
+  }
+  return weekRangeLabel();
+}
 function filterLabel(){
-  var parts = [weekLabel()];
+  var parts = [periodLabel()];
   if (currentChannel !== 'all') parts.push(currentChannel);
   if (currentDispatch !== 'all') parts.push(currentDispatch);
   return parts.join(' · ');
@@ -1170,64 +1300,78 @@ function hourlyOrderCountsByDate(days){
 }
 
 (function setupFilterBar(){
-  var fromInput = document.getElementById('dateFrom');
-  var toInput = document.getElementById('dateTo');
-  fromInput.min = toInput.min = DATA_MIN;
-  fromInput.max = toInput.max = DATA_MAX;
-  fromInput.value = currentFrom;
-  toInput.value = currentTo;
-
-  var presetWrap = document.getElementById('datePresets');
-  presetWrap.innerHTML = DATE_PRESETS.map(function(p,i){
-    return '<button data-key="'+p.key+'" class="'+(i===0?'active':'')+'">'+p.label+'</button>';
-  }).join('');
-
+  var toggleWrap = document.getElementById('periodToggle');
   var monthSel = document.getElementById('monthFilter');
-  monthSel.innerHTML = '<option value="all">All months</option>' + MONTH_OPTIONS.map(function(m){
-    return '<option value="'+m.key+'">'+m.label+'</option>';
-  }).join('');
+  var weekSel = document.getElementById('weekFilter');
+  var dayInput = document.getElementById('dayFilter');
+  var prevBtn = document.getElementById('periodPrev');
+  var nextBtn = document.getElementById('periodNext');
 
-  function syncPresetHighlight(){
-    var match = DATE_PRESETS.filter(function(p){return p.from===currentFrom && p.to===currentTo;})[0];
-    presetWrap.querySelectorAll('button').forEach(function(b){
-      b.classList.toggle('active', !!match && b.dataset.key===match.key);
-    });
-    var monthMatch = MONTH_OPTIONS.filter(function(m){return m.from===currentFrom && m.to===currentTo;})[0];
-    monthSel.value = monthMatch ? monthMatch.key : 'all';
+  monthSel.innerHTML = MONTH_OPTIONS.map(function(m){ return '<option value="'+m.key+'">'+m.label+'</option>'; }).join('');
+  weekSel.innerHTML = WEEK_OPTIONS.map(function(w){ return '<option value="'+w.key+'">'+w.label+'</option>'; }).join('');
+  dayInput.min = DATA_MIN; dayInput.max = DATA_MAX;
+
+  function syncPickerVisibility(){
+    monthSel.classList.toggle('hidden', periodType!=='month');
+    weekSel.classList.toggle('hidden', periodType!=='week');
+    dayInput.classList.toggle('hidden', periodType!=='day');
+    monthSel.value = currentMonthKey;
+    weekSel.value = currentWeekKey;
+    dayInput.value = currentDayKey;
+    toggleWrap.querySelectorAll('button').forEach(function(b){ b.classList.toggle('active', b.dataset.period===periodType); });
+    updateNavButtons();
   }
-
-  presetWrap.addEventListener('click', function(ev){
-    var btn = ev.target.closest('button'); if (!btn) return;
-    var p = DATE_PRESETS.filter(function(x){return x.key===btn.dataset.key;})[0];
-    if (!p) return;
-    currentFrom = p.from; currentTo = p.to;
-    fromInput.value = currentFrom; toInput.value = currentTo;
-    syncPresetHighlight(); updateFilterUI(); renderAll();
-  });
-
-  monthSel.addEventListener('change', function(){
-    if (monthSel.value === 'all'){
-      currentFrom = DATA_MIN; currentTo = DATA_MAX;
+  function updateNavButtons(){
+    if (periodType==='month'){
+      var idx = MONTH_OPTIONS.map(function(m){return m.key;}).indexOf(currentMonthKey);
+      prevBtn.disabled = idx===-1 || idx>=MONTH_OPTIONS.length-1;
+      nextBtn.disabled = idx<=0;
+    } else if (periodType==='week'){
+      var idx2 = WEEK_OPTIONS.map(function(w){return w.key;}).indexOf(currentWeekKey);
+      prevBtn.disabled = idx2===-1 || idx2>=WEEK_OPTIONS.length-1;
+      nextBtn.disabled = idx2<=0;
     } else {
-      var m = MONTH_OPTIONS.filter(function(x){return x.key===monthSel.value;})[0];
-      if (m){ currentFrom = m.from; currentTo = m.to; }
+      prevBtn.disabled = currentDayKey<=DATA_MIN;
+      nextBtn.disabled = currentDayKey>=DATA_MAX;
     }
-    fromInput.value = currentFrom; toInput.value = currentTo;
-    syncPresetHighlight(); updateFilterUI(); renderAll();
-  });
-
-  function applyDateInputs(){
-    var f = fromInput.value, t = toInput.value;
-    if (!f || !t) return;
-    if (f < DATA_MIN) f = DATA_MIN;
-    if (t > DATA_MAX) t = DATA_MAX;
-    if (f > t) { var tmp=f; f=t; t=tmp; }
-    currentFrom = f; currentTo = t;
-    fromInput.value = f; toInput.value = t;
-    syncPresetHighlight(); updateFilterUI(); renderAll();
   }
-  fromInput.addEventListener('change', applyDateInputs);
-  toInput.addEventListener('change', applyDateInputs);
+  function applyChange(){
+    syncCurrentRange(); syncPickerVisibility(); updateFilterUI(); renderAll();
+  }
+
+  toggleWrap.addEventListener('click', function(ev){
+    var btn = ev.target.closest('button'); if (!btn) return;
+    periodType = btn.dataset.period;
+    applyChange();
+  });
+  monthSel.addEventListener('change', function(){ currentMonthKey = monthSel.value; applyChange(); });
+  weekSel.addEventListener('change', function(){ currentWeekKey = weekSel.value; applyChange(); });
+  dayInput.addEventListener('change', function(){
+    var v = dayInput.value; if (!v) return;
+    if (v < DATA_MIN) v = DATA_MIN;
+    if (v > DATA_MAX) v = DATA_MAX;
+    currentDayKey = v; applyChange();
+  });
+  prevBtn.addEventListener('click', function(){
+    if (periodType==='month'){
+      var idx = MONTH_OPTIONS.map(function(m){return m.key;}).indexOf(currentMonthKey);
+      if (idx > -1 && idx < MONTH_OPTIONS.length-1) currentMonthKey = MONTH_OPTIONS[idx+1].key;
+    } else if (periodType==='week'){
+      var idx2 = WEEK_OPTIONS.map(function(w){return w.key;}).indexOf(currentWeekKey);
+      if (idx2 > -1 && idx2 < WEEK_OPTIONS.length-1) currentWeekKey = WEEK_OPTIONS[idx2+1].key;
+    } else if (currentDayKey > DATA_MIN) { currentDayKey = addDays(currentDayKey,-1); }
+    applyChange();
+  });
+  nextBtn.addEventListener('click', function(){
+    if (periodType==='month'){
+      var idx = MONTH_OPTIONS.map(function(m){return m.key;}).indexOf(currentMonthKey);
+      if (idx > 0) currentMonthKey = MONTH_OPTIONS[idx-1].key;
+    } else if (periodType==='week'){
+      var idx2 = WEEK_OPTIONS.map(function(w){return w.key;}).indexOf(currentWeekKey);
+      if (idx2 > 0) currentWeekKey = WEEK_OPTIONS[idx2-1].key;
+    } else if (currentDayKey < DATA_MAX) { currentDayKey = addDays(currentDayKey,1); }
+    applyChange();
+  });
 
   var chSel = document.getElementById('channelFilter');
   chSel.innerHTML = '<option value="all">All channels</option>' + DATA.sourceOrder.map(function(s){
@@ -1242,13 +1386,13 @@ function hourlyOrderCountsByDate(days){
   dispSel.addEventListener('change', function(){ currentDispatch = dispSel.value; updateFilterUI(); renderAll(); });
 
   document.getElementById('filterReset').addEventListener('click', function(){
-    currentFrom = DEFAULT_FROM; currentTo = DEFAULT_TO; currentChannel = 'all'; currentDispatch = 'all';
-    fromInput.value = currentFrom; toInput.value = currentTo;
+    periodType = DEFAULT_PERIOD_TYPE; currentMonthKey = DEFAULT_MONTH_KEY;
+    currentChannel = 'all'; currentDispatch = 'all';
     chSel.value = 'all'; dispSel.value = 'all';
-    syncPresetHighlight(); updateFilterUI(); renderAll();
+    applyChange();
   });
 
-  syncPresetHighlight();
+  syncPickerVisibility();
   updateFilterUI();
 })();
 function updateFilterUI(){
@@ -1265,7 +1409,7 @@ function updateFilterUI(){
   dispSel.title = detail ? '' : 'Fulfilment filtering needs order-level data, only available within August 2026';
 
   document.getElementById('rangePill').textContent = filterLabel();
-  var active = currentFrom!==DEFAULT_FROM || currentTo!==DEFAULT_TO || currentChannel!=='all' || currentDispatch!=='all';
+  var active = periodType!==DEFAULT_PERIOD_TYPE || currentMonthKey!==DEFAULT_MONTH_KEY || currentChannel!=='all' || currentDispatch!=='all';
   document.getElementById('filterReset').style.display = active ? '' : 'none';
 
   var notice = document.getElementById('detailNotice');
@@ -1273,128 +1417,109 @@ function updateFilterUI(){
 }
 
 /* ================= KPI ROW ================= */
-function renderKPIs(){
+function renderHero(){
   var days = daysInRange();
-  var sumNet, sumOrders, sumDiscounts, sumRpc, sumVendor;
-  if (hasOrderLevelDetail()){
+  var detail = hasOrderLevelDetail();
+  var sumNet, sumOrders;
+  if (detail){
     var orders = filteredOrders();
-    sumNet = sumOf(orders,'net'); sumOrders = orders.length; sumDiscounts = sumOf(orders,'disc');
-    sumRpc = orders.filter(function(o){return RPC_SOURCES.indexOf(o.src)>-1;}).length;
-    sumVendor = orders.filter(function(o){return VENDOR_SOURCES.indexOf(o.src)>-1;}).length;
+    sumNet = sumOf(orders,'net'); sumOrders = orders.length;
   } else {
     var agg = aggregateFromDaily(days);
-    sumNet = agg.net; sumOrders = agg.orders; sumDiscounts = agg.discounts;
-    sumRpc = RPC_SOURCES.reduce(function(s,src){return s+agg.bySource[src].orders;},0);
-    sumVendor = VENDOR_SOURCES.reduce(function(s,src){return s+agg.bySource[src].orders;},0);
+    sumNet = agg.net; sumOrders = agg.orders;
   }
   var aov = sumOrders ? sumNet/sumOrders : 0;
-  var discPct = sumNet ? sumDiscounts/sumNet*100 : 0;
-  var rpcPct = sumOrders ? sumRpc/sumOrders*100 : 0;
-  var vendorPct = sumOrders ? sumVendor/sumOrders*100 : 0;
-
-  var range = rangeDates();
-  var p = computeProfit(days, range.from, range.to);
+  var p = computeProfit(days, currentFrom, currentTo);
   var filtersNarrowed = currentChannel!=='all' || currentDispatch!=='all';
 
-  var row = document.getElementById('kpiRow');
-  row.innerHTML = '';
-  function tile(html){ var d = document.createElement('div'); d.className='kpi'; d.innerHTML = html; row.appendChild(d); return d; }
+  document.getElementById('heroPeriod').textContent = filterLabel();
 
-  tile('<div class="label">Net sales ('+filterLabel()+')</div><div class="value">'+fmtGBP(sumNet)+'</div><div class="foot">across '+fmtInt(sumOrders)+' orders</div>');
-  tile('<div class="label">Avg order value</div><div class="value">'+fmtGBP(aov,2)+'</div><div class="foot">ex-tax, selected range</div>');
-  tile('<div class="label">Net profit</div><div class="value" style="color:'+(p.netProfit>=0?'var(--good)':'var(--bad)')+'">'+(p.netProfit>=0?'':'−')+fmtGBP(Math.abs(p.netProfit))+'</div><div class="foot">'+p.marginPct.toFixed(1)+'% margin'+(filtersNarrowed?' · whole business':'')+'</div>');
+  var prev = previousPeriodInfo();
+  var prevAgg = prev ? periodNetOrders(prev.from, prev.to) : null;
+  var prevProfit = (prev && prevAgg && prevAgg.days.length) ? computeProfit(prevAgg.days, prev.from, prev.to) : null;
 
-  var d4 = tile('<div class="label">Direct vs Vendors</div><div class="value">'+rpcPct.toFixed(0)+'% / '+vendorPct.toFixed(0)+'%</div>');
-  var split = document.createElement('div'); split.className='split';
-  split.innerHTML = '<i class="a" style="width:'+rpcPct+'%"></i><i class="b" style="width:'+vendorPct+'%"></i>';
-  d4.appendChild(split);
-  var key = document.createElement('div'); key.className='splitkey';
-  key.innerHTML = '<span>Direct</span><span>Vendors</span>';
-  d4.appendChild(key);
+  function trendHtml(curVal, prevVal){
+    if (prevVal === null || prevVal === undefined || !prevVal) return '';
+    var pct = (curVal-prevVal)/Math.abs(prevVal)*100;
+    var up = pct >= 0;
+    return '<span class="trend'+(up?' up':'')+'">'+(up?'▲':'▼')+' '+Math.abs(pct).toFixed(0)+'%</span>';
+  }
+  function trendMoneyHtml(curVal, prevVal){
+    if (prevVal === null || prevVal === undefined) return '';
+    var diff = curVal - prevVal;
+    if (Math.abs(diff) < 0.5) return '';
+    var up = diff >= 0;
+    return '<span class="trend'+(up?' up':'')+'">'+(up?'▲':'▼')+' '+fmtGBP(Math.abs(diff))+'</span>';
+  }
+  var periodNoun = periodType==='day' ? 'yesterday' : periodType==='week' ? 'last week' : 'last month';
 
-  tile('<div class="label">Discount rate</div><div class="value" style="color:'+(discPct>15?'var(--bad)':'var(--good)')+'">'+discPct.toFixed(1)+'%</div><div class="foot">'+fmtGBP(sumDiscounts)+' given away</div>');
-  tile('<div class="label">Orders</div><div class="value">'+fmtInt(sumOrders)+'</div><div class="foot">'+(days.length)+' day'+(days.length===1?'':'s')+' in range</div>');
+  var grid = document.getElementById('heroGrid');
+  grid.innerHTML =
+    '<div class="hero-stat"><div class="l">Net sales</div><div class="v">'+fmtGBP(sumNet)+'</div>'+(prevAgg?trendHtml(sumNet, prevAgg.net):'')+'</div>'+
+    '<div class="hero-stat"><div class="l">Net profit'+(filtersNarrowed?' (whole business)':'')+'</div><div class="v">'+(p.netProfit>=0?'':'−')+fmtGBP(Math.abs(p.netProfit))+'</div>'+(prevProfit?trendMoneyHtml(p.netProfit, prevProfit.netProfit):'')+'</div>'+
+    '<div class="hero-stat"><div class="l">Orders</div><div class="v">'+fmtInt(sumOrders)+'</div>'+(prevAgg?trendHtml(sumOrders, prevAgg.orders):'')+'</div>'+
+    '<div class="hero-stat"><div class="l">Avg order value</div><div class="v">'+fmtGBP(aov,2)+'</div></div>';
+
+  var periodWord = periodType==='day' ? 'day' : periodType==='week' ? 'week' : 'month';
+  var take = p.netProfit >= 0
+    ? 'Profitable '+periodWord+' — <b>'+p.marginPct.toFixed(1)+'% margin</b> after rent, staff, food cost and platform fees.'
+    : 'Running at a loss this '+periodWord+' — <b>'+Math.abs(p.marginPct).toFixed(1)+'% negative margin</b> after rent, staff, food cost and platform fees.';
+  if (prevAgg && prevAgg.net){
+    var pctT = (sumNet-prevAgg.net)/prevAgg.net*100;
+    take += ' Sales are <b>'+(pctT>=0?'up':'down')+' '+Math.abs(pctT).toFixed(0)+'%</b> vs '+periodNoun+'.';
+  }
+  document.getElementById('heroTakeaway').innerHTML = take;
 }
 
 /* ================= ACTIONABLE INSIGHTS ================= */
+/* ---- shared period-comparison helpers (used by Insights and the Hero card) ---- */
+function previousPeriodInfo(){
+  if (periodType==='week'){
+    var idx = WEEK_OPTIONS.map(function(w){return w.key;}).indexOf(currentWeekKey);
+    var p = idx>-1 ? WEEK_OPTIONS[idx+1] : null;
+    return p ? {from:p.from, to:p.to, label:'the previous week'} : null;
+  }
+  if (periodType==='day'){
+    var prevDate = addDays(currentDayKey,-1);
+    if (prevDate < DATA_MIN) return null;
+    return {from:prevDate, to:prevDate, label:'the day before'};
+  }
+  var idx2 = MONTH_OPTIONS.map(function(m){return m.key;}).indexOf(currentMonthKey);
+  var p2 = idx2>-1 ? MONTH_OPTIONS[idx2+1] : null;
+  return p2 ? {from:p2.from, to:p2.to, label:p2.label.replace(' (latest)','')} : null;
+}
+function periodNetOrders(fromDate, toDate){
+  var days = DAILY.filter(function(d){return d.date>=fromDate && d.date<=toDate;});
+  var net = days.reduce(function(s,d){return s+d.net_sales;},0);
+  var orders = days.reduce(function(s,d){return s+d.orders;},0);
+  return {net:net, orders:orders, days:days};
+}
+function sameWeekdayAverage(dateStr){
+  var w = (new Date(dateStr+'T00:00:00Z').getUTCDay()+6)%7;
+  var matches = DAILY.filter(function(d){
+    return d.date!==dateStr && (new Date(d.date+'T00:00:00Z').getUTCDay()+6)%7===w && d.orders>0;
+  });
+  if (!matches.length) return null;
+  var sumNet = matches.reduce(function(s,d){return s+d.net_sales;},0);
+  var sumOrders = matches.reduce(function(s,d){return s+d.orders;},0);
+  return {net: sumNet/matches.length, orders: sumOrders/matches.length, count: matches.length};
+}
+function trendInsight(sumNet, prev){
+  if (!prev) return null;
+  var prevAgg = periodNetOrders(prev.from, prev.to);
+  if (!prevAgg.net) return null;
+  var pct = (sumNet-prevAgg.net)/prevAgg.net*100;
+  var dir = pct>=0 ? 'up' : 'down';
+  return {sev: pct>=0?'good':'watch', text:'Net sales are <b>'+dir+' '+Math.abs(pct).toFixed(0)+'%</b> vs '+prev.label+' — '+fmtGBP(prevAgg.net)+' &rarr; '+fmtGBP(sumNet)+'.'};
+}
+
 function renderInsights(){
-  var days = daysInRange();
-  var detail = hasOrderLevelDetail();
-  var sumNet, sumOrders, sumDiscounts, sumRefunds, dow, hod, sourcesNet;
-  if (detail){
-    var orders = filteredOrders();
-    sumNet = sumOf(orders,'net'); sumOrders = orders.length; sumDiscounts = sumOf(orders,'disc'); sumRefunds = sumOf(orders,'ref');
-    dow = aggByDow(orders); hod = aggByHod(orders); sourcesNet = aggBySource(orders);
-  } else {
-    var agg = aggregateFromDaily(days);
-    sumNet = agg.net; sumOrders = agg.orders; sumDiscounts = agg.discounts; sumRefunds = agg.refunds;
-    dow = agg.byDow; hod = agg.byHod;
-    sourcesNet = {}; DATA.sourceOrder.forEach(function(s){ sourcesNet[s] = agg.bySource[s].net; });
-  }
-  document.getElementById('insightsSub').textContent = 'Based on ' + filterLabel().toLowerCase();
-
-  var insights = [];
-
-  // Discount rate
-  var discPct = sumNet ? sumDiscounts/sumNet*100 : 0;
-  if (discPct > 20){
-    insights.push({sev:'watch', text:'Discounts are the single biggest lever in the P&L — <b>'+fmtGBP(sumDiscounts)+'</b> given away this period, <b>'+discPct.toFixed(1)+'%</b> of net sales. Some of this will be the first-order 25% off promotion currently running — this export has no promo-code field, so it can\'t be split out exactly, but it\'s worth checking whether the new customers that offer brings in are ordering again and paying the discount back over time, rather than treating the whole total as pure margin lost.'});
-  } else if (discPct > 0) {
-    insights.push({sev:'info', text:'Discounts run at <b>'+discPct.toFixed(1)+'%</b> of net sales ('+fmtGBP(sumDiscounts)+') — worth tracking against margin over time, and against the cost of any first-order promo currently running.'});
-  }
-
-  // Weekend concentration
-  var weekend = (dow.Friday||0)+(dow.Saturday||0)+(dow.Sunday||0);
-  var weekendPct = sumNet ? weekend/sumNet*100 : 0;
-  if (weekendPct > 55){
-    insights.push({sev:'info', text:'Friday–Sunday drives <b>'+weekendPct.toFixed(0)+'%</b> of net sales — staffing and stock should weight heavily toward the weekend, with weekdays as the quieter, lower-cost stretch.'});
-  }
-
-  // Peak hour
-  var hodEntries = Object.keys(hod).map(function(h){return {h:parseInt(h,10), v:hod[h]};}).sort(function(a,b){return b.v-a.v;});
-  if (hodEntries.length && hodEntries[0].v > 0){
-    var peak = hodEntries[0];
-    insights.push({sev:'info', text:'<b>'+fmtHourLabel(peak.h)+'</b> is the single busiest hour ('+fmtGBP(peak.v)+' in net sales) — that\'s when kitchen throughput matters most.'});
-  }
-  var quietEntries = hodEntries.filter(function(e){return e.v>0;}).sort(function(a,b){return a.v-b.v;});
-  if (quietEntries.length){
-    var quiet = quietEntries[0];
-    insights.push({sev:'watch', text:'<b>'+fmtHourLabel(quiet.h)+'</b> is the quietest trading hour ('+fmtGBP(quiet.v)+') — see "Peak hours, quiet hours & staffing" below for ideas to lift it.'});
-  }
-
-  // Busiest specific day-of-week + hour combination
-  var bestSlot = busiestSlot(dowHourMatrix(days));
-  if (bestSlot && bestSlot.net > 0){
-    insights.push({sev:'good', text:'<b>'+DATA.dowOrder[bestSlot.d]+', '+fmtHourLabel(bestSlot.h)+'</b> is your single busiest day-and-hour combination — <b>'+fmtGBP(bestSlot.net)+'</b> in net sales in that exact slot. See the heatmap in "When customers order" below for the full picture.'});
-  }
-
-  // Refunds
-  if (sumRefunds === 0 && sumOrders > 0){
-    insights.push({sev:'good', text:'Zero refunds across '+fmtInt(sumOrders)+' orders this period — strong operational execution.'});
-  } else if (sumRefunds > 0) {
-    var refPct = sumNet ? sumRefunds/sumNet*100 : 0;
-    insights.push({sev: refPct>2?'watch':'info', text:'Refunds came to <b>'+fmtGBP(sumRefunds)+'</b> ('+refPct.toFixed(2)+'% of net sales) this period.'});
-  }
-
-  // Channel leader
-  var flipdish = sourcesNet['Flipdish']||0;
-  var vendorTotal = VENDOR_SOURCES.reduce(function(s,k){return s+(sourcesNet[k]||0);},0);
-  if (flipdish > 0 || vendorTotal > 0){
-    if (flipdish > vendorTotal){
-      insights.push({sev:'good', text:'Flipdish alone ('+fmtGBP(flipdish)+') outsells all three marketplace apps combined ('+fmtGBP(vendorTotal)+') — that\'s the lowest-commission channel carrying the most weight.'});
-    } else {
-      insights.push({sev:'watch', text:'Marketplace apps combined ('+fmtGBP(vendorTotal)+') now outsell Flipdish ('+fmtGBP(flipdish)+') — worth a push to shift volume back to the lower-commission direct channel.'});
-    }
-  }
-
-  // Best/worst day
-  var validDays = days.filter(function(d){return d.orders>0;}).map(function(d){return {date:d.date, net_sales:d.net_sales, orders:d.orders};});
-  if (validDays.length >= 2){
-    var best = validDays.reduce(function(a,b){return b.net_sales>a.net_sales?b:a;});
-    var worst = validDays.reduce(function(a,b){return b.net_sales<a.net_sales?b:a;});
-    insights.push({sev:'info', text:'Best day was <b>'+fmtDateLong(best.date)+'</b> ('+fmtGBP(best.net_sales)+', '+best.orders+' orders); quietest trading day was <b>'+fmtDateLong(worst.date)+'</b> ('+fmtGBP(worst.net_sales)+', '+worst.orders+' orders).'});
-  }
-
+  document.getElementById('insightsSub').textContent =
+    periodType==='day' ? 'What stood out today' : periodType==='week' ? 'What stood out this week' : 'What stood out this month';
+  var insights = periodType==='day' ? buildDayInsights() : buildPeriodInsights(periodType);
+  renderInsightList(insights);
+}
+function renderInsightList(insights){
   var listEl = document.getElementById('insightList');
   listEl.innerHTML = '';
   if (!insights.length){
@@ -1410,9 +1535,163 @@ function renderInsights(){
   });
 }
 
+/* ---- Month / Week insights (a date range of several days) ---- */
+function buildPeriodInsights(kind){
+  var days = daysInRange();
+  var detail = hasOrderLevelDetail();
+  var sumNet, sumOrders, sumDiscounts, sumRefunds, dow, hod, sourcesNet;
+  if (detail){
+    var orders = filteredOrders();
+    sumNet = sumOf(orders,'net'); sumOrders = orders.length; sumDiscounts = sumOf(orders,'disc'); sumRefunds = sumOf(orders,'ref');
+    dow = aggByDow(orders); hod = aggByHod(orders); sourcesNet = aggBySource(orders);
+  } else {
+    var agg = aggregateFromDaily(days);
+    sumNet = agg.net; sumOrders = agg.orders; sumDiscounts = agg.discounts; sumRefunds = agg.refunds;
+    dow = agg.byDow; hod = agg.byHod;
+    sourcesNet = {}; DATA.sourceOrder.forEach(function(s){ sourcesNet[s] = agg.bySource[s].net; });
+  }
+  var periodWord = kind==='week' ? 'this week' : 'this month';
+  var insights = [];
+
+  var trend = trendInsight(sumNet, previousPeriodInfo());
+  if (trend) insights.push(trend);
+
+  var discPct = sumNet ? sumDiscounts/sumNet*100 : 0;
+  if (discPct > 20){
+    insights.push({sev:'watch', text:'Discounts are the single biggest lever in the P&L — <b>'+fmtGBP(sumDiscounts)+'</b> given away '+periodWord+', <b>'+discPct.toFixed(1)+'%</b> of net sales. Some of this will be the first-order 25% off promotion currently running — this export has no promo-code field, so it can\'t be split out exactly, but it\'s worth checking whether the new customers that offer brings in are ordering again and paying the discount back over time, rather than treating the whole total as pure margin lost.'});
+  } else if (discPct > 0) {
+    insights.push({sev:'info', text:'Discounts run at <b>'+discPct.toFixed(1)+'%</b> of net sales ('+fmtGBP(sumDiscounts)+') '+periodWord+' — worth tracking against margin over time.'});
+  }
+
+  var weekend = (dow.Friday||0)+(dow.Saturday||0)+(dow.Sunday||0);
+  var weekendPct = sumNet ? weekend/sumNet*100 : 0;
+  if (weekendPct > 55){
+    insights.push({sev:'info', text:'Friday–Sunday drove <b>'+weekendPct.toFixed(0)+'%</b> of net sales '+periodWord+' — staffing and stock should weight heavily toward the weekend, with weekdays as the quieter, lower-cost stretch.'});
+  }
+
+  var hodEntries = Object.keys(hod).map(function(h){return {h:parseInt(h,10), v:hod[h]};}).sort(function(a,b){return b.v-a.v;});
+  if (hodEntries.length && hodEntries[0].v > 0){
+    var peak = hodEntries[0];
+    insights.push({sev:'info', text:'<b>'+fmtHourLabel(peak.h)+'</b> was the single busiest hour '+periodWord+' ('+fmtGBP(peak.v)+' in net sales) — that\'s when kitchen throughput matters most.'});
+  }
+  var quietEntries = hodEntries.filter(function(e){return e.v>0;}).sort(function(a,b){return a.v-b.v;});
+  if (quietEntries.length){
+    var quiet = quietEntries[0];
+    insights.push({sev:'watch', text:'<b>'+fmtHourLabel(quiet.h)+'</b> was the quietest trading hour ('+fmtGBP(quiet.v)+') — see "Peak hours, quiet hours & staffing" below for ideas to lift it.'});
+  }
+
+  var bestSlot = busiestSlot(dowHourMatrix(days));
+  if (bestSlot && bestSlot.net > 0){
+    insights.push({sev:'good', text:'<b>'+DATA.dowOrder[bestSlot.d]+', '+fmtHourLabel(bestSlot.h)+'</b> was your single busiest day-and-hour combination — <b>'+fmtInt(bestSlot.orders)+' orders</b>, '+fmtGBP(bestSlot.net)+' in net sales. See the heatmap in "When customers order" below for the full picture.'});
+  }
+
+  if (sumRefunds === 0 && sumOrders > 0){
+    insights.push({sev:'good', text:'Zero refunds across '+fmtInt(sumOrders)+' orders '+periodWord+' — strong operational execution.'});
+  } else if (sumRefunds > 0) {
+    var refPct = sumNet ? sumRefunds/sumNet*100 : 0;
+    insights.push({sev: refPct>2?'watch':'info', text:'Refunds came to <b>'+fmtGBP(sumRefunds)+'</b> ('+refPct.toFixed(2)+'% of net sales) '+periodWord+'.'});
+  }
+
+  var flipdish = sourcesNet['Flipdish']||0;
+  var vendorTotal = VENDOR_SOURCES.reduce(function(s,k){return s+(sourcesNet[k]||0);},0);
+  if (flipdish > 0 || vendorTotal > 0){
+    if (flipdish > vendorTotal){
+      insights.push({sev:'good', text:'Flipdish alone ('+fmtGBP(flipdish)+') outsold all three marketplace apps combined ('+fmtGBP(vendorTotal)+') — that\'s the lowest-commission channel carrying the most weight.'});
+    } else {
+      insights.push({sev:'watch', text:'Marketplace apps combined ('+fmtGBP(vendorTotal)+') outsold Flipdish ('+fmtGBP(flipdish)+') — worth a push to shift volume back to the lower-commission direct channel.'});
+    }
+  }
+
+  var validDays = days.filter(function(d){return d.orders>0;}).map(function(d){return {date:d.date, net_sales:d.net_sales, orders:d.orders};});
+  if (validDays.length >= 2){
+    var best = validDays.reduce(function(a,b){return b.net_sales>a.net_sales?b:a;});
+    var worst = validDays.reduce(function(a,b){return b.net_sales<a.net_sales?b:a;});
+    insights.push({sev:'info', text:'Best day was <b>'+fmtDateLong(best.date)+'</b> ('+fmtGBP(best.net_sales)+', '+best.orders+' orders); quietest trading day was <b>'+fmtDateLong(worst.date)+'</b> ('+fmtGBP(worst.net_sales)+', '+worst.orders+' orders).'});
+  }
+
+  return insights;
+}
+
+/* ---- Day insights (a single day) ---- */
+function buildDayInsights(){
+  var detail = hasOrderLevelDetail();
+  var dayRecord = DAILY.filter(function(x){return x.date===currentDayKey;})[0];
+  if (!dayRecord || dayRecord.orders===0){
+    return [{sev:'info', text:'No orders recorded on '+fmtDateLong(currentDayKey)+'.'}];
+  }
+  var sumNet, sumOrders, sumDiscounts, sumRefunds, hod, sourcesNet, sourcesCount;
+  if (detail && (currentChannel!=='all' || currentDispatch!=='all')){
+    var orders = filteredOrders();
+    sumNet = sumOf(orders,'net'); sumOrders = orders.length; sumDiscounts = sumOf(orders,'disc'); sumRefunds = sumOf(orders,'ref');
+    hod = aggByHod(orders); sourcesNet = aggBySource(orders);
+    sourcesCount = {}; DATA.sourceOrder.forEach(function(s){ sourcesCount[s] = orders.filter(function(o){return o.src===s;}).length; });
+  } else {
+    sumNet = dayRecord.net_sales; sumOrders = dayRecord.orders; sumDiscounts = dayRecord.discounts; sumRefunds = dayRecord.refunds;
+    hod = {}; Object.keys(dayRecord.hod).forEach(function(k){ hod[parseInt(k,10)] = dayRecord.hod[k]; });
+    sourcesNet = dayRecord.sources_net; sourcesCount = dayRecord.sources;
+  }
+  var wIdx = (new Date(dayRecord.date+'T00:00:00Z').getUTCDay()+6)%7;
+  var dowName = DATA.dowOrder[wIdx];
+  var insights = [];
+
+  var trend = trendInsight(sumNet, previousPeriodInfo());
+  if (trend) insights.push(trend);
+
+  var typical = sameWeekdayAverage(dayRecord.date);
+  if (typical && typical.net > 0){
+    var pct2 = (sumNet-typical.net)/typical.net*100;
+    insights.push({sev: pct2>=0?'good':'watch', text:'This is <b>'+(pct2>=0?'+':'−')+Math.abs(pct2).toFixed(0)+'%</b> vs a typical '+dowName+' — the average '+dowName+' across '+typical.count+' other weeks in the data is '+fmtGBP(typical.net)+'.'});
+  }
+
+  var hodEntries = Object.keys(hod).map(function(h){return {h:parseInt(h,10), v:hod[h]};}).filter(function(e){return e.v>0;}).sort(function(a,b){return b.v-a.v;});
+  if (hodEntries.length){
+    insights.push({sev:'info', text:'<b>'+fmtHourLabel(hodEntries[0].h)+'</b> was the busiest hour today, with '+fmtGBP(hodEntries[0].v)+' in net sales.'});
+  }
+  if (hodEntries.length > 1){
+    var quietToday = hodEntries.slice().sort(function(a,b){return a.v-b.v;})[0];
+    insights.push({sev:'info', text:'<b>'+fmtHourLabel(quietToday.h)+'</b> was the quietest trading hour today, at '+fmtGBP(quietToday.v)+'.'});
+  }
+
+  var discPct = sumNet ? sumDiscounts/sumNet*100 : 0;
+  if (discPct > 0){
+    insights.push({sev: discPct>25?'watch':'info', text:'Discounts came to <b>'+fmtGBP(sumDiscounts)+'</b> ('+discPct.toFixed(1)+'% of net sales) today.'});
+  }
+  if (sumRefunds > 0){
+    insights.push({sev:'watch', text:'Refunds today totalled <b>'+fmtGBP(sumRefunds)+'</b>.'});
+  } else {
+    insights.push({sev:'good', text:'Zero refunds across '+fmtInt(sumOrders)+' orders today.'});
+  }
+
+  var topSource = DATA.sourceOrder.reduce(function(a,s){ return (sourcesNet[s]||0) > (sourcesNet[a]||0) ? s : a; }, DATA.sourceOrder[0]);
+  if (sourcesNet[topSource]){
+    insights.push({sev:'info', text:'<b>'+topSource+'</b> was the top channel today — '+fmtGBP(sourcesNet[topSource])+' across '+fmtInt(sourcesCount[topSource]||0)+' orders.'});
+  }
+
+  return insights;
+}
+
 /* ================= DAILY TREND ================= */
 function renderDaily(){
+  var titleEl = document.getElementById('dailyTitle');
   var subEl = document.getElementById('dailySub');
+  if (periodType === 'day'){
+    if (titleEl) titleEl.textContent = 'Hour by hour';
+    if (subEl) subEl.textContent = filterLabel();
+    var hod = hasOrderLevelDetail() ? aggByHod(filteredOrders()) : aggregateFromDaily(daysInRange()).byHod;
+    var hodTrim = [];
+    for (var h=0; h<24; h++){ if (hod[h] > 0 || (h>=11 && h<=23)) hodTrim.push(h); }
+    var pts2 = hodTrim.map(function(h){ return {x:String(h), y:hod[h]}; });
+    drawLineChart(document.getElementById('dailyChart'), {
+      points: pts2, color: resolveColor('var(--s1)'), yLabel:'Net sales',
+      valueFmt: function(v){return fmtGBP(v);}, axisFmt: fmtCompactGBP,
+      xFmt: function(h){ return fmtHourLabel(parseInt(h,10)).split('–')[0]; },
+      titleFmt: function(h){ return fmtHourLabel(parseInt(h,10)); },
+      height: 280,
+      ariaLabel:'Net sales by hour, ' + filterLabel()
+    });
+    return;
+  }
+  if (titleEl) titleEl.textContent = 'Daily net sales';
   if (subEl) subEl.textContent = 'Every day, ' + filterLabel().toLowerCase();
   var byDate = {};
   if (hasOrderLevelDetail()){
@@ -1471,14 +1750,24 @@ function renderDowHod(){
 /* ================= DAY x HOUR HEATMAP (net sales, from daily totals — works for any date range) ================= */
 function dowHourMatrix(days){
   var matrix = {};
+  function cell(h,w){
+    if (!matrix[h]) matrix[h] = {};
+    if (!matrix[h][w]) matrix[h][w] = {net:0, orders:0};
+    return matrix[h][w];
+  }
   days.forEach(function(d){
     var w = (new Date(d.date+'T00:00:00Z').getUTCDay()+6)%7;
     for (var h=0; h<24; h++){
       var net = d.hod[String(h)] || 0;
-      if (net <= 0) continue;
-      if (!matrix[h]) matrix[h] = {};
-      if (!matrix[h][w]) matrix[h][w] = {net:0};
-      matrix[h][w].net += net;
+      if (net > 0) cell(h,w).net += net;
+    }
+  });
+  var hourlyCounts = hourlyOrderCountsByDate(days);
+  days.forEach(function(d){
+    var w = (new Date(d.date+'T00:00:00Z').getUTCDay()+6)%7;
+    for (var h=0; h<24; h++){
+      var c = (hourlyCounts[h] && hourlyCounts[h][d.date]) || 0;
+      if (c > 0) cell(h,w).orders += c;
     }
   });
   return matrix;
@@ -1490,7 +1779,7 @@ function busiestSlot(matrix){
     Object.keys(matrix[h]).forEach(function(dStr){
       var d = parseInt(dStr,10);
       var cell = matrix[h][d];
-      if (!best || cell.net > best.net) best = {h:h, d:d, net:cell.net};
+      if (!best || cell.net > best.net) best = {h:h, d:d, net:cell.net, orders:cell.orders};
     });
   });
   return best;
@@ -1504,10 +1793,11 @@ function renderHeatmap(days, hodTrim){
   var matrix = dowHourMatrix(days);
   var best = busiestSlot(matrix);
   var maxNet = best ? best.net : 0;
+  var estimated = !hasOrderLevelDetail();
 
   var callout = document.getElementById('heatmapCallout');
   if (best && maxNet > 0){
-    callout.innerHTML = '<b>'+DATA.dowOrder[best.d]+', '+fmtHourLabel(best.h)+'</b> is the single busiest day-and-hour combination in this range — <b>'+fmtGBP(best.net)+'</b> in net sales has landed in that exact slot in total.';
+    callout.innerHTML = '<b>'+DATA.dowOrder[best.d]+', '+fmtHourLabel(best.h)+'</b> is the single busiest day-and-hour combination in this range — <b>'+fmtInt(best.orders)+' order'+(best.orders===1?'':'s')+'</b>'+(estimated?' (est.)':'')+', <b>'+fmtGBP(best.net)+'</b> in net sales.';
   } else {
     callout.textContent = 'Not enough data in this range to identify a busiest slot.';
   }
@@ -1518,14 +1808,14 @@ function renderHeatmap(days, hodTrim){
     html += '<tr><th style="font-weight:400;color:var(--ink-muted);text-align:right;">'+fmtHourLabel(h)+'</th>';
     for (var d=0; d<7; d++){
       var dowName = DATA.dowOrder[d];
-      var cell = (matrix[h] && matrix[h][d]) || {net:0};
+      var cell = (matrix[h] && matrix[h][d]) || {net:0, orders:0};
       var closed = !isOpenAt(dowName, h) && cell.net === 0;
       var intensity = maxNet ? cell.net/maxNet : 0;
       var bg = cell.net>0 ? 'rgba(168,64,42,'+(0.10+intensity*0.75).toFixed(2)+')' : 'transparent';
       var isMax = best && best.h===h && best.d===d;
       var cls = closed ? ' class="heatcell-closed"' : (isMax ? ' class="heatcell-max"' : '');
-      var title = closed ? dowName+', '+fmtHourLabel(h)+': closed' : dowName+', '+fmtHourLabel(h)+': '+fmtGBP(cell.net);
-      var text = closed ? '·' : fmtCellCompact(cell.net);
+      var title = closed ? dowName+', '+fmtHourLabel(h)+': closed' : dowName+', '+fmtHourLabel(h)+': '+fmtInt(cell.orders)+' orders, '+fmtGBP(cell.net);
+      var text = closed ? '·' : ('<div class="hc-orders">'+fmtInt(cell.orders)+'</div><div class="hc-net">'+fmtCellCompact(cell.net)+'</div>');
       html += '<td'+cls+' style="background:'+(closed?'':bg)+'" title="'+title+'">'+text+'</td>';
     }
     html += '</tr>';
@@ -1805,12 +2095,6 @@ function setupProfitInputs(){
     });
   });
 }
-document.getElementById('profitConfigBtn').addEventListener('click', function(){
-  var card = document.getElementById('profitConfigCard');
-  var show = card.style.display === 'none';
-  card.style.display = show ? '' : 'none';
-  this.setAttribute('aria-expanded', show);
-});
 document.getElementById('platformScopeToggle').addEventListener('click', function(ev){
   var btn = ev.target.closest('button'); if (!btn) return;
   this.querySelectorAll('button').forEach(function(b){b.classList.remove('active');});
@@ -2210,7 +2494,7 @@ function renderScenario(){
 
 /* ================= RENDER ALL ================= */
 function renderAll(){
-  renderKPIs();
+  renderHero();
   renderInsights();
   renderDaily();
   renderDowHod();
