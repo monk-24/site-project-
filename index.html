@@ -1582,7 +1582,7 @@ function buildPeriodInsights(kind){
 
   var bestSlot = busiestSlot(dowHourMatrix(days));
   if (bestSlot && bestSlot.net > 0){
-    insights.push({sev:'good', text:'<b>'+DATA.dowOrder[bestSlot.d]+', '+fmtHourLabel(bestSlot.h)+'</b> was your single busiest day-and-hour combination — <b>'+fmtInt(bestSlot.orders)+' orders</b>, '+fmtGBP(bestSlot.net)+' in net sales. See the heatmap in "When customers order" below for the full picture.'});
+    insights.push({sev:'good', text:'<b>'+weekColumnLabels().full[bestSlot.d]+', '+fmtHourLabel(bestSlot.h)+'</b> was your single busiest day-and-hour combination — <b>'+fmtInt(bestSlot.orders)+' orders</b>, '+fmtGBP(bestSlot.net)+' in net sales. See the heatmap in "When customers order" below for the full picture.'});
   }
 
   if (sumRefunds === 0 && sumOrders > 0){
@@ -1714,6 +1714,23 @@ function renderDaily(){
 }
 
 /* ================= WHEN CUSTOMERS ORDER ================= */
+/* When a single Week is selected, each weekday only occurs once — show its
+   actual date (e.g. "Mon 24") instead of just the weekday name, in charts
+   that group by day of week. */
+function weekColumnLabels(){
+  var short = DATA.dowOrder.map(function(d){ return d.slice(0,3); });
+  var full = DATA.dowOrder.slice();
+  if (periodType === 'week'){
+    daysInRange().forEach(function(d){
+      var w = (new Date(d.date+'T00:00:00Z').getUTCDay()+6)%7;
+      var day = parseInt(d.date.slice(8,10),10);
+      short[w] = DATA.dowOrder[w].slice(0,3) + ' ' + day;
+      full[w] = DATA.dowOrder[w] + ', ' + fmtDateShort(d.date);
+    });
+  }
+  return {short:short, full:full};
+}
+
 function renderDowHod(){
   var days = daysInRange();
   var dow, hod;
@@ -1729,10 +1746,11 @@ function renderDowHod(){
   var maxClose = Math.max.apply(null, DATA.dowOrder.map(function(d){return OPENING_HOURS[d] ? OPENING_HOURS[d].close : 23;}));
   for (var h=0; h<24; h++){ if (hod[h] > 0 || (h>=minOpen && h<maxClose)) hodTrim.push(h); }
 
+  var dowLabels = weekColumnLabels();
   drawBarChart(document.getElementById('dowChart'), {
     categories: DATA.dowOrder,
     series: [{name:'Net sales', color: resolveColor('var(--s1)'), values: DATA.dowOrder.map(function(d){return dow[d];})}],
-    mode:'single', xFmt: function(d){return d.slice(0,3);}, titleFmt: function(d){return d;},
+    mode:'single', xFmt: function(d,i){return dowLabels.short[i];}, titleFmt: function(d,i){return dowLabels.full[i];},
     valueFmt: function(v){return fmtGBP(v);}, axisFmt: fmtCompactGBP, barMax: 34,
     ariaLabel: 'Net sales by day of week'
   });
@@ -1794,16 +1812,17 @@ function renderHeatmap(days, hodTrim){
   var best = busiestSlot(matrix);
   var maxNet = best ? best.net : 0;
   var estimated = !hasOrderLevelDetail();
+  var colLabels = weekColumnLabels();
 
   var callout = document.getElementById('heatmapCallout');
   if (best && maxNet > 0){
-    callout.innerHTML = '<b>'+DATA.dowOrder[best.d]+', '+fmtHourLabel(best.h)+'</b> is the single busiest day-and-hour combination in this range — <b>'+fmtInt(best.orders)+' order'+(best.orders===1?'':'s')+'</b>'+(estimated?' (est.)':'')+', <b>'+fmtGBP(best.net)+'</b> in net sales.';
+    callout.innerHTML = '<b>'+colLabels.full[best.d]+', '+fmtHourLabel(best.h)+'</b> is the single busiest day-and-hour combination in this range — <b>'+fmtInt(best.orders)+' order'+(best.orders===1?'':'s')+'</b>'+(estimated?' (est.)':'')+', <b>'+fmtGBP(best.net)+'</b> in net sales.';
   } else {
     callout.textContent = 'Not enough data in this range to identify a busiest slot.';
   }
 
   if (!hodTrim.length){ document.getElementById('heatmapTable').innerHTML = ''; return; }
-  var html = '<thead><tr><th></th>' + DATA.dowOrder.map(function(d){return '<th>'+d.slice(0,3)+'</th>';}).join('') + '</tr></thead><tbody>';
+  var html = '<thead><tr><th></th>' + colLabels.short.map(function(d){return '<th>'+d+'</th>';}).join('') + '</tr></thead><tbody>';
   hodTrim.forEach(function(h){
     html += '<tr><th style="font-weight:400;color:var(--ink-muted);text-align:right;">'+fmtHourLabel(h)+'</th>';
     for (var d=0; d<7; d++){
@@ -1814,7 +1833,7 @@ function renderHeatmap(days, hodTrim){
       var bg = cell.net>0 ? 'rgba(13,13,13,'+(0.05+intensity*0.30).toFixed(2)+')' : 'transparent';
       var isMax = best && best.h===h && best.d===d;
       var cls = closed ? ' class="heatcell-closed"' : (isMax ? ' class="heatcell-max"' : '');
-      var title = closed ? dowName+', '+fmtHourLabel(h)+': closed' : dowName+', '+fmtHourLabel(h)+': '+fmtInt(cell.orders)+' orders, '+fmtGBP(cell.net);
+      var title = closed ? colLabels.full[d]+', '+fmtHourLabel(h)+': closed' : colLabels.full[d]+', '+fmtHourLabel(h)+': '+fmtInt(cell.orders)+' orders, '+fmtGBP(cell.net);
       var text = closed ? '·' : ('<div class="hc-orders">'+fmtInt(cell.orders)+'</div><div class="hc-net">'+fmtCellCompact(cell.net)+'</div>');
       html += '<td'+cls+' style="background:'+(closed?'':bg)+'" title="'+title+'">'+text+'</td>';
     }
