@@ -205,6 +205,17 @@
   table.heatmap th:first-child, table.heatmap td:first-child{ text-align:right; padding-right:8px; white-space:nowrap; width:64px; }
   table.heatmap thead th{ text-align:center; }
   table.heatmap td.heatcell-max{ box-shadow:inset 0 0 0 2px var(--accent); border-radius:4px; font-weight:700; color:var(--accent-strong); }
+  table.heatmap td.heatcell-closed{
+    background:repeating-linear-gradient(45deg, var(--grid), var(--grid) 5px, transparent 5px, transparent 10px) !important;
+    color:var(--ink-muted); font-size:10px;
+  }
+  .opening-hours{ display:grid; grid-template-columns:repeat(auto-fit, minmax(160px,1fr)); gap:10px; }
+  .opening-hours .oh-row{
+    display:flex; justify-content:space-between; gap:10px; padding:9px 12px;
+    background:var(--surface-page); border:1px solid var(--border); border-radius:8px; font-size:12.5px;
+  }
+  .opening-hours .oh-row .days{ font-weight:600; color:var(--ink-primary); }
+  .opening-hours .oh-row .hours{ font-family:"IBM Plex Mono",monospace; color:var(--ink-secondary); }
   .hidden{ display:none !important; }
 
   .footnote{ font-size:11.5px; color:var(--ink-muted); margin-top:10px; line-height:1.6; }
@@ -373,6 +384,10 @@
         <h2>Peak hours, quiet hours &amp; staffing</h2>
         <p id="staffSub">When it's busy, when it's quiet, and roughly how many people that calls for</p>
       </div>
+    </div>
+    <div class="card" style="margin-bottom:14px;">
+      <p class="sectiontitle" style="margin-top:0;">Opening hours</p>
+      <div class="opening-hours" id="openingHours"></div>
     </div>
     <div class="card">
       <div class="stat-strip" id="peakStats"></div>
@@ -1029,6 +1044,32 @@ function fmtHourLabel(h){
   var h2v = (h+1)%24, h2 = (h2v%12===0?12:h2v%12), s2 = h2v<12?'am':'pm';
   return h1+s1+'–'+h2+s2;
 }
+function fmtHM(h){ var h12=(h%12===0?12:h%12); return h12+(h<12?'am':'pm'); }
+var OPENING_HOURS = {
+  Monday:{open:16,close:22}, Tuesday:{open:16,close:22}, Wednesday:{open:16,close:22}, Thursday:{open:16,close:22},
+  Friday:{open:13,close:22}, Saturday:{open:13,close:22}, Sunday:{open:13,close:22}
+};
+function isOpenAt(dowName, h){
+  var oh = OPENING_HOURS[dowName];
+  if (!oh) return true;
+  return h >= oh.open && h < oh.close;
+}
+function renderOpeningHours(){
+  var el = document.getElementById('openingHours');
+  if (!el) return;
+  var groups = [];
+  DATA.dowOrder.forEach(function(d){
+    var oh = OPENING_HOURS[d];
+    var key = oh ? oh.open+'-'+oh.close : 'none';
+    var last = groups[groups.length-1];
+    if (last && last.key===key){ last.days.push(d); } else { groups.push({key:key, days:[d], oh:oh}); }
+  });
+  el.innerHTML = groups.map(function(g){
+    var label = g.days.length>1 ? g.days[0].slice(0,3)+'–'+g.days[g.days.length-1].slice(0,3) : g.days[0];
+    var hours = g.oh ? fmtHM(g.oh.open)+'–'+fmtHM(g.oh.close) : 'Closed';
+    return '<div class="oh-row"><span class="days">'+label+'</span><span class="hours">'+hours+'</span></div>';
+  }).join('');
+}
 function aggByDow(orders){
   var out = {}; DATA.dowOrder.forEach(function(d){out[d]=0;});
   orders.forEach(function(o){ out[DATA.dowOrder[o.w]] += o.net; });
@@ -1309,7 +1350,9 @@ function renderDowHod(){
   var dow = aggByDow(orders);
   var hod = aggByHod(orders);
   var hodTrim = [];
-  for (var h=0; h<24; h++){ if (hod[h] > 0 || (h>=11 && h<=23)) hodTrim.push(h); }
+  var minOpen = Math.min.apply(null, DATA.dowOrder.map(function(d){return OPENING_HOURS[d] ? OPENING_HOURS[d].open : 11;}));
+  var maxClose = Math.max.apply(null, DATA.dowOrder.map(function(d){return OPENING_HOURS[d] ? OPENING_HOURS[d].close : 23;}));
+  for (var h=0; h<24; h++){ if (hod[h] > 0 || (h>=minOpen && h<maxClose)) hodTrim.push(h); }
 
   drawBarChart(document.getElementById('dowChart'), {
     categories: DATA.dowOrder,
@@ -1369,11 +1412,16 @@ function renderHeatmap(orders, hodTrim){
   hodTrim.forEach(function(h){
     html += '<tr><th style="font-weight:400;color:var(--ink-muted);text-align:right;">'+fmtHourLabel(h)+'</th>';
     for (var d=0; d<7; d++){
+      var dowName = DATA.dowOrder[d];
       var cell = (matrix[h] && matrix[h][d]) || {orders:0, net:0};
+      var closed = !isOpenAt(dowName, h) && cell.orders === 0;
       var intensity = maxOrders ? cell.orders/maxOrders : 0;
       var bg = cell.orders>0 ? 'rgba(168,64,42,'+(0.10+intensity*0.75).toFixed(2)+')' : 'transparent';
       var isMax = best && best.h===h && best.d===d;
-      html += '<td'+(isMax?' class="heatcell-max"':'')+' style="background:'+bg+'" title="'+DATA.dowOrder[d]+', '+fmtHourLabel(h)+': '+cell.orders+' orders, '+fmtGBP(cell.net)+'">'+(cell.orders||'')+'</td>';
+      var cls = closed ? ' class="heatcell-closed"' : (isMax ? ' class="heatcell-max"' : '');
+      var title = closed ? dowName+', '+fmtHourLabel(h)+': closed' : dowName+', '+fmtHourLabel(h)+': '+cell.orders+' orders, '+fmtGBP(cell.net);
+      var text = closed ? '·' : (cell.orders||'');
+      html += '<td'+cls+' style="background:'+(closed?'':bg)+'" title="'+title+'">'+text+'</td>';
     }
     html += '</tr>';
   });
@@ -2016,6 +2064,7 @@ function renderAll(){
   renderProfitability();
 }
 renderAll();
+renderOpeningHours();
 setupProfitInputs();
 setupCalcInputs();
 renderCalc();
