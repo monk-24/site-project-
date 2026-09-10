@@ -87,10 +87,11 @@
   .masthead .meta b{ color:var(--ink-secondary); font-weight:600; }
 
   .filterbar{
-    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    display:flex; flex-direction:column; gap:10px;
     background:var(--surface-card); border:1px solid var(--border); border-radius:10px;
     padding:10px 14px; margin-bottom:22px; box-shadow:var(--shadow);
   }
+  .filterbar-row{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
   .filterbar .flabel{ font:600 11px "IBM Plex Sans",sans-serif; letter-spacing:.05em; text-transform:uppercase; color:var(--ink-muted); }
   .filterbar .fselect{
     appearance:none; border:1px solid var(--border); background:var(--surface-raised) url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2210%22 height=%226%22 viewBox=%220 0 10 6%22><path d=%22M1 1l4 4 4-4%22 stroke=%22%2388909a%22 stroke-width=%221.4%22 fill=%22none%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/></svg>') no-repeat right 9px center;
@@ -98,6 +99,12 @@
     border-radius:7px; cursor:pointer;
   }
   .filterbar .fselect:focus-visible{ outline:2px solid var(--accent); outline-offset:1px; }
+  .filterbar .fdate{
+    border:1px solid var(--border); background:var(--surface-raised); color:var(--ink-primary);
+    font:500 12px "IBM Plex Mono",monospace; padding:5px 10px; border-radius:7px; cursor:pointer;
+    color-scheme: light;
+  }
+  .filterbar .fdate:focus-visible{ outline:2px solid var(--accent); outline-offset:1px; }
   .filterbar .rangepill{
     margin-left:auto; font:600 11.5px "IBM Plex Mono",monospace; color:var(--accent);
     background:var(--accent-wash); padding:5px 10px; border-radius:20px;
@@ -193,6 +200,11 @@
   table.datatable th:first-child, table.datatable td:first-child{ text-align:left; font-family:"IBM Plex Sans",sans-serif; }
   table.datatable thead th{ color:var(--ink-muted); font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:.04em; font-family:"IBM Plex Sans",sans-serif; }
   table.datatable tfoot td{ font-weight:600; border-top:1.5px solid var(--baseline); border-bottom:none; color:var(--ink-primary); }
+  table.heatmap{ table-layout:fixed; }
+  table.heatmap th, table.heatmap td{ text-align:center; padding:6px 4px; border-bottom:1px solid var(--border); }
+  table.heatmap th:first-child, table.heatmap td:first-child{ text-align:right; padding-right:8px; white-space:nowrap; width:64px; }
+  table.heatmap thead th{ text-align:center; }
+  table.heatmap td.heatcell-max{ box-shadow:inset 0 0 0 2px var(--accent); border-radius:4px; font-weight:700; color:var(--accent-strong); }
   .hidden{ display:none !important; }
 
   .footnote{ font-size:11.5px; color:var(--ink-muted); margin-top:10px; line-height:1.6; }
@@ -278,14 +290,23 @@
   </div>
 
   <div class="filterbar">
-    <span class="flabel">Week</span>
-    <div class="segmented" id="weekFilter"></div>
-    <span class="flabel">Channel</span>
-    <select class="fselect" id="channelFilter"></select>
-    <span class="flabel">Fulfilment</span>
-    <select class="fselect" id="dispatchFilter"></select>
-    <button class="tablebtn" id="filterReset" style="display:none;">Reset filters</button>
-    <span class="rangepill" id="rangePill"></span>
+    <div class="filterbar-row">
+      <span class="flabel">Dates</span>
+      <input type="date" class="fdate" id="dateFrom">
+      <span class="flabel">to</span>
+      <input type="date" class="fdate" id="dateTo">
+      <div class="segmented" id="datePresets"></div>
+    </div>
+    <div class="filterbar-row">
+      <span class="flabel">Month</span>
+      <select class="fselect" id="monthFilter"></select>
+      <span class="flabel">Channel</span>
+      <select class="fselect" id="channelFilter"></select>
+      <span class="flabel">Fulfilment</span>
+      <select class="fselect" id="dispatchFilter"></select>
+      <button class="tablebtn" id="filterReset" style="display:none;">Reset filters</button>
+      <span class="rangepill" id="rangePill"></span>
+    </div>
   </div>
 
   <div class="kpis" id="kpiRow"></div>
@@ -324,6 +345,12 @@
     <div class="grid2">
       <div class="card"><div class="chartbox" id="dowChart"></div></div>
       <div class="card"><div class="chartbox" id="hodChart"></div></div>
+    </div>
+    <div class="card" style="margin-top:18px;">
+      <p class="sectiontitle" style="margin-top:0;">Busiest day &amp; hour combination</p>
+      <p class="footnote" id="heatmapCallout" style="margin-top:-4px;"></p>
+      <div class="tablewrap"><table class="datatable heatmap" id="heatmapTable"></table></div>
+      <p class="footnote" style="margin-top:10px;">Each cell totals orders placed in that hour, on that day of the week, across the selected date range — darker means busier. Hover a cell for net sales.</p>
     </div>
   </section>
 
@@ -899,15 +926,7 @@ function renderMeterList(container, items, colorVar){
   });
 }
 
-/* ================= FILTER STATE (week + channel + fulfilment) ================= */
-var WEEK_RANGES = [
-  {key:'all', label:'All August', from:1, to:31},
-  {key:'w1', label:'Week 1 (1–7)', from:1, to:7},
-  {key:'w2', label:'Week 2 (8–14)', from:8, to:14},
-  {key:'w3', label:'Week 3 (15–21)', from:15, to:21},
-  {key:'w4', label:'Week 4 (22–28)', from:22, to:28},
-  {key:'w5', label:'Week 5 (29–31)', from:29, to:31}
-];
+/* ================= FILTER STATE (custom date range + channel + fulfilment) ================= */
 var ORDERS = DATA.orders;
 var RPC_SOURCES = ['Flipdish','In store'];
 var DISPATCH_TYPES = (function(){
@@ -915,16 +934,45 @@ var DISPATCH_TYPES = (function(){
   var present = {}; ORDERS.forEach(function(o){present[o.disp]=true;});
   return preferred.filter(function(t){return present[t];});
 })();
-var currentWeek = 'all';
+function addDays(dateStr, n){
+  var d = new Date(dateStr+'T00:00:00Z');
+  d.setUTCDate(d.getUTCDate()+n);
+  return d.toISOString().slice(0,10);
+}
+var DATA_MIN = ORDERS.reduce(function(m,o){return o.d<m?o.d:m;}, ORDERS[0].d);
+var DATA_MAX = ORDERS.reduce(function(m,o){return o.d>m?o.d:m;}, ORDERS[0].d);
+var DATE_PRESETS = (function(){
+  var presets = [{key:'all', label:'All time', from:DATA_MIN, to:DATA_MAX}];
+  var cursor = DATA_MIN, idx = 1;
+  while (cursor <= DATA_MAX){
+    var end = addDays(cursor, 6);
+    if (end > DATA_MAX) end = DATA_MAX;
+    presets.push({key:'p'+idx, label:'Week '+idx+' ('+fmtDateShort(cursor)+'–'+fmtDateShort(end)+')', from:cursor, to:end});
+    cursor = addDays(end, 1);
+    idx++;
+  }
+  return presets;
+})();
+var MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+var MONTH_OPTIONS = (function(){
+  var months = {};
+  ORDERS.forEach(function(o){ months[o.d.slice(0,7)] = true; });
+  var keys = Object.keys(months).sort().reverse();
+  return keys.map(function(k, i){
+    var y = k.slice(0,4), m = parseInt(k.slice(5,7),10)-1;
+    var start = k+'-01';
+    var end = new Date(Date.UTC(parseInt(y,10), m+1, 0)).toISOString().slice(0,10);
+    if (start < DATA_MIN) start = DATA_MIN;
+    if (end > DATA_MAX) end = DATA_MAX;
+    return {key:k, label: MONTH_NAMES[m]+' '+y+(i===0?' (latest)':''), from:start, to:end};
+  });
+})();
+var currentFrom = DATA_MIN;
+var currentTo = DATA_MAX;
 var currentChannel = 'all';
 var currentDispatch = 'all';
 
-function weekRange(){ return WEEK_RANGES.filter(function(w){return w.key===currentWeek;})[0]; }
-function rangeDates(){
-  var r = weekRange();
-  var pad = function(n){ return n<10?'0'+n:''+n; };
-  return {from: '2026-08-'+pad(r.from), to: '2026-08-'+pad(r.to)};
-}
+function rangeDates(){ return {from: currentFrom, to: currentTo}; }
 function calendarDays(fromDate, toDate){
   return Math.max(0, Math.round((new Date(toDate+'T00:00:00Z') - new Date(fromDate+'T00:00:00Z'))/86400000) + 1);
 }
@@ -953,7 +1001,13 @@ function aggDispatch(periods){
   });
   return out;
 }
-function weekLabel(){ return weekRange().label; }
+function weekLabel(){
+  if (currentFrom === DATA_MIN && currentTo === DATA_MAX) return 'All time';
+  if (currentFrom === currentTo) return fmtDateLong(currentFrom);
+  var fromYear = currentFrom.slice(0,4), toYear = currentTo.slice(0,4);
+  var fromLabel = fmtDateShort(currentFrom) + (fromYear!==toYear ? ' '+fromYear : '');
+  return fromLabel + '–' + fmtDateShort(currentTo) + ' ' + toYear;
+}
 function filterLabel(){
   var parts = [weekLabel()];
   if (currentChannel !== 'all') parts.push(currentChannel);
@@ -962,11 +1016,8 @@ function filterLabel(){
 }
 function filteredOrders(opts){
   opts = opts || {};
-  var r = weekRange();
-  var pad = function(n){ return n<10?'0'+n:''+n; };
-  var from = '2026-08-'+pad(r.from), to = '2026-08-'+pad(r.to);
   return ORDERS.filter(function(o){
-    if (o.d < from || o.d > to) return false;
+    if (o.d < currentFrom || o.d > currentTo) return false;
     if (opts.applyChannel !== false && currentChannel !== 'all' && o.src !== currentChannel) return false;
     if (opts.applyDispatch !== false && currentDispatch !== 'all' && o.disp !== currentDispatch) return false;
     return true;
@@ -1014,17 +1065,64 @@ function aggByPayment(orders){
 }
 
 (function setupFilterBar(){
-  var wrap = document.getElementById('weekFilter');
-  wrap.innerHTML = WEEK_RANGES.map(function(w,i){
-    return '<button data-key="'+w.key+'" class="'+(i===0?'active':'')+'">'+w.label+'</button>';
+  var fromInput = document.getElementById('dateFrom');
+  var toInput = document.getElementById('dateTo');
+  fromInput.min = toInput.min = DATA_MIN;
+  fromInput.max = toInput.max = DATA_MAX;
+  fromInput.value = currentFrom;
+  toInput.value = currentTo;
+
+  var presetWrap = document.getElementById('datePresets');
+  presetWrap.innerHTML = DATE_PRESETS.map(function(p,i){
+    return '<button data-key="'+p.key+'" class="'+(i===0?'active':'')+'">'+p.label+'</button>';
   }).join('');
-  wrap.addEventListener('click', function(ev){
+
+  var monthSel = document.getElementById('monthFilter');
+  monthSel.innerHTML = '<option value="all">All months</option>' + MONTH_OPTIONS.map(function(m){
+    return '<option value="'+m.key+'">'+m.label+'</option>';
+  }).join('');
+
+  function syncPresetHighlight(){
+    var match = DATE_PRESETS.filter(function(p){return p.from===currentFrom && p.to===currentTo;})[0];
+    presetWrap.querySelectorAll('button').forEach(function(b){
+      b.classList.toggle('active', !!match && b.dataset.key===match.key);
+    });
+    var monthMatch = MONTH_OPTIONS.filter(function(m){return m.from===currentFrom && m.to===currentTo;})[0];
+    monthSel.value = monthMatch ? monthMatch.key : 'all';
+  }
+
+  presetWrap.addEventListener('click', function(ev){
     var btn = ev.target.closest('button'); if (!btn) return;
-    wrap.querySelectorAll('button').forEach(function(b){b.classList.remove('active');});
-    btn.classList.add('active');
-    currentWeek = btn.dataset.key;
-    updateFilterUI(); renderAll();
+    var p = DATE_PRESETS.filter(function(x){return x.key===btn.dataset.key;})[0];
+    if (!p) return;
+    currentFrom = p.from; currentTo = p.to;
+    fromInput.value = currentFrom; toInput.value = currentTo;
+    syncPresetHighlight(); updateFilterUI(); renderAll();
   });
+
+  monthSel.addEventListener('change', function(){
+    if (monthSel.value === 'all'){
+      currentFrom = DATA_MIN; currentTo = DATA_MAX;
+    } else {
+      var m = MONTH_OPTIONS.filter(function(x){return x.key===monthSel.value;})[0];
+      if (m){ currentFrom = m.from; currentTo = m.to; }
+    }
+    fromInput.value = currentFrom; toInput.value = currentTo;
+    syncPresetHighlight(); updateFilterUI(); renderAll();
+  });
+
+  function applyDateInputs(){
+    var f = fromInput.value, t = toInput.value;
+    if (!f || !t) return;
+    if (f < DATA_MIN) f = DATA_MIN;
+    if (t > DATA_MAX) t = DATA_MAX;
+    if (f > t) { var tmp=f; f=t; t=tmp; }
+    currentFrom = f; currentTo = t;
+    fromInput.value = f; toInput.value = t;
+    syncPresetHighlight(); updateFilterUI(); renderAll();
+  }
+  fromInput.addEventListener('change', applyDateInputs);
+  toInput.addEventListener('change', applyDateInputs);
 
   var chSel = document.getElementById('channelFilter');
   chSel.innerHTML = '<option value="all">All channels</option>' + DATA.sourceOrder.map(function(s){
@@ -1039,17 +1137,18 @@ function aggByPayment(orders){
   dispSel.addEventListener('change', function(){ currentDispatch = dispSel.value; updateFilterUI(); renderAll(); });
 
   document.getElementById('filterReset').addEventListener('click', function(){
-    currentWeek = 'all'; currentChannel = 'all'; currentDispatch = 'all';
-    wrap.querySelectorAll('button').forEach(function(b,i){ b.classList.toggle('active', i===0); });
+    currentFrom = DATA_MIN; currentTo = DATA_MAX; currentChannel = 'all'; currentDispatch = 'all';
+    fromInput.value = currentFrom; toInput.value = currentTo;
     chSel.value = 'all'; dispSel.value = 'all';
-    updateFilterUI(); renderAll();
+    syncPresetHighlight(); updateFilterUI(); renderAll();
   });
 
+  syncPresetHighlight();
   updateFilterUI();
 })();
 function updateFilterUI(){
   document.getElementById('rangePill').textContent = filterLabel();
-  var active = currentWeek!=='all' || currentChannel!=='all' || currentDispatch!=='all';
+  var active = currentFrom!==DATA_MIN || currentTo!==DATA_MAX || currentChannel!=='all' || currentDispatch!=='all';
   document.getElementById('filterReset').style.display = active ? '' : 'none';
 }
 
@@ -1108,9 +1207,9 @@ function renderInsights(){
   // Discount rate
   var discPct = sumNet ? sumDiscounts/sumNet*100 : 0;
   if (discPct > 20){
-    insights.push({sev:'watch', text:'Discounts are the single biggest lever in the P&L — <b>'+fmtGBP(sumDiscounts)+'</b> given away this period, <b>'+discPct.toFixed(1)+'%</b> of net sales. Even a small pullback here would flow straight through to profit.'});
+    insights.push({sev:'watch', text:'Discounts are the single biggest lever in the P&L — <b>'+fmtGBP(sumDiscounts)+'</b> given away this period, <b>'+discPct.toFixed(1)+'%</b> of net sales. Some of this will be the first-order 25% off promotion currently running — this export has no promo-code field, so it can\'t be split out exactly, but it\'s worth checking whether the new customers that offer brings in are ordering again and paying the discount back over time, rather than treating the whole total as pure margin lost.'});
   } else if (discPct > 0) {
-    insights.push({sev:'info', text:'Discounts run at <b>'+discPct.toFixed(1)+'%</b> of net sales ('+fmtGBP(sumDiscounts)+') — worth tracking against margin over time.'});
+    insights.push({sev:'info', text:'Discounts run at <b>'+discPct.toFixed(1)+'%</b> of net sales ('+fmtGBP(sumDiscounts)+') — worth tracking against margin over time, and against the cost of any first-order promo currently running.'});
   }
 
   // Weekend concentration
@@ -1130,6 +1229,12 @@ function renderInsights(){
   if (quietEntries.length){
     var quiet = quietEntries[0];
     insights.push({sev:'watch', text:'<b>'+fmtHourLabel(quiet.h)+'</b> is the quietest trading hour ('+fmtGBP(quiet.v)+') — see "Peak hours, quiet hours & staffing" below for ideas to lift it.'});
+  }
+
+  // Busiest specific day-of-week + hour combination
+  var bestSlot = busiestSlot(dowHourMatrix(orders));
+  if (bestSlot && bestSlot.orders > 0){
+    insights.push({sev:'good', text:'<b>'+DATA.dowOrder[bestSlot.d]+', '+fmtHourLabel(bestSlot.h)+'</b> is your single busiest day-and-hour combination — '+bestSlot.orders+' orders ('+fmtGBP(bestSlot.net)+') in that exact slot. See the heatmap in "When customers order" below for the full picture.'});
   }
 
   // Refunds
@@ -1181,14 +1286,11 @@ function renderInsights(){
 
 /* ================= DAILY TREND ================= */
 function renderDaily(){
-  var r = weekRange();
   var orders = filteredOrders();
   var byDate = {};
   orders.forEach(function(o){ byDate[o.d] = (byDate[o.d]||0) + o.net; });
-  var pad = function(n){ return n<10?'0'+n:''+n; };
   var pts = [];
-  for (var day=r.from; day<=r.to; day++){
-    var date = '2026-08-'+pad(day);
+  for (var date=currentFrom; date<=currentTo; date=addDays(date,1)){
     pts.push({x:date, y: byDate[date]||0});
   }
   drawLineChart(document.getElementById('dailyChart'), {
@@ -1223,6 +1325,60 @@ function renderDowHod(){
     valueFmt: function(v){return fmtGBP(v);}, axisFmt: fmtCompactGBP, barMax: 20,
     ariaLabel: 'Net sales by hour of day'
   });
+
+  renderHeatmap(orders, hodTrim);
+}
+
+/* ================= DAY x HOUR HEATMAP ================= */
+function dowHourMatrix(orders){
+  var matrix = {};
+  orders.forEach(function(o){
+    if (!matrix[o.h]) matrix[o.h] = {};
+    if (!matrix[o.h][o.w]) matrix[o.h][o.w] = {orders:0, net:0};
+    matrix[o.h][o.w].orders++;
+    matrix[o.h][o.w].net += o.net;
+  });
+  return matrix;
+}
+function busiestSlot(matrix){
+  var best = null;
+  Object.keys(matrix).forEach(function(hStr){
+    var h = parseInt(hStr,10);
+    Object.keys(matrix[h]).forEach(function(dStr){
+      var d = parseInt(dStr,10);
+      var cell = matrix[h][d];
+      if (!best || cell.orders > best.orders) best = {h:h, d:d, orders:cell.orders, net:cell.net};
+    });
+  });
+  return best;
+}
+function renderHeatmap(orders, hodTrim){
+  var matrix = dowHourMatrix(orders);
+  var best = busiestSlot(matrix);
+  var maxOrders = best ? best.orders : 0;
+
+  var callout = document.getElementById('heatmapCallout');
+  if (best && maxOrders > 0){
+    callout.innerHTML = '<b>'+DATA.dowOrder[best.d]+', '+fmtHourLabel(best.h)+'</b> is the single busiest day-and-hour combination in this range — <b>'+best.orders+' orders</b> ('+fmtGBP(best.net)+' net sales) landed in that slot in total.';
+  } else {
+    callout.textContent = 'Not enough orders in this range to identify a busiest slot.';
+  }
+
+  if (!hodTrim.length){ document.getElementById('heatmapTable').innerHTML = ''; return; }
+  var html = '<thead><tr><th></th>' + DATA.dowOrder.map(function(d){return '<th>'+d.slice(0,3)+'</th>';}).join('') + '</tr></thead><tbody>';
+  hodTrim.forEach(function(h){
+    html += '<tr><th style="font-weight:400;color:var(--ink-muted);text-align:right;">'+fmtHourLabel(h)+'</th>';
+    for (var d=0; d<7; d++){
+      var cell = (matrix[h] && matrix[h][d]) || {orders:0, net:0};
+      var intensity = maxOrders ? cell.orders/maxOrders : 0;
+      var bg = cell.orders>0 ? 'rgba(168,64,42,'+(0.10+intensity*0.75).toFixed(2)+')' : 'transparent';
+      var isMax = best && best.h===h && best.d===d;
+      html += '<td'+(isMax?' class="heatcell-max"':'')+' style="background:'+bg+'" title="'+DATA.dowOrder[d]+', '+fmtHourLabel(h)+': '+cell.orders+' orders, '+fmtGBP(cell.net)+'">'+(cell.orders||'')+'</td>';
+    }
+    html += '</tr>';
+  });
+  html += '</tbody>';
+  document.getElementById('heatmapTable').innerHTML = html;
 }
 
 /* ================= DELIVERY VS COLLECTION ================= */
