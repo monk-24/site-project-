@@ -1,7 +1,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Monk Food Restaurant Sales</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiNlN2U3ZTQiLz48dGV4dCB4PSIzMiIgeT0iMzAiIGZvbnQtZmFtaWx5PSJBcmlhbCwgSGVsdmV0aWNhLCBzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iODAwIiBmb250LXNpemU9IjE3IiBsZXR0ZXItc3BhY2luZz0iMC41IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjMGIwYjBiIj5NT05LPC90ZXh0Pjx0ZXh0IHg9IjMyIiB5PSI0OSIgZm9udC1mYW1pbHk9IkFyaWFsLCBIZWx2ZXRpY2EsIHNhbnMtc2VyaWYiIGZvbnQtd2VpZ2h0PSI4MDAiIGZvbnQtc2l6ZT0iMTciIGxldHRlci1zcGFjaW5nPSIwLjUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMwYjBiMGIiPkZPT0Q8L3RleHQ+PC9zdmc+">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiNlNWU0ZTAiLz48dGV4dCB4PSIzMiIgeT0iMzAiIGZvbnQtZmFtaWx5PSJBcmlhbCwgSGVsdmV0aWNhLCBzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iODAwIiBmb250LXNpemU9IjE3IiBsZXR0ZXItc3BhY2luZz0iMC41IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjMGQwZDBkIj5NT05LPC90ZXh0Pjx0ZXh0IHg9IjMyIiB5PSI0OSIgZm9udC1mYW1pbHk9IkFyaWFsLCBIZWx2ZXRpY2EsIHNhbnMtc2VyaWYiIGZvbnQtd2VpZ2h0PSI4MDAiIGZvbnQtc2l6ZT0iMTciIGxldHRlci1zcGFjaW5nPSIwLjUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMwZDBkMGQiPkZPT0Q8L3RleHQ+PC9zdmc+">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -18,9 +18,9 @@
     --grid:           #ecedf1;
     --baseline:       #d4d7dd;
     --border:         rgba(15,23,42,0.08);
-    --accent:         #a8402a;
-    --accent-strong:  #7f2f1f;
-    --accent-wash:    rgba(168,64,42,0.08);
+    --accent:         #1a1a1a;
+    --accent-strong:  #0d0d0d;
+    --accent-wash:    rgba(13,13,13,0.06);
     --good:           #0ca30c;
     --good-wash:      rgba(12,163,12,0.10);
     --bad:            #d03b3b;
@@ -93,13 +93,13 @@
   .demo-banner b{ color:var(--accent-strong); }
   .agency-strip{ display:flex; align-items:center; gap:12px; margin-bottom:22px; }
   .monk-badge{
-    background:#e7e7e4; color:#0b0b0b; flex:none;
+    background:#e5e4e0; color:#0d0d0d; flex:none;
     font:800 11px/1.15 "Archivo",sans-serif; text-transform:uppercase; letter-spacing:.01em;
     text-align:center; padding:7px 11px; border-radius:6px;
     text-decoration:none; display:inline-block; cursor:pointer;
     transition:background .12s ease, transform .12s ease;
   }
-  .monk-badge:hover{ background:#dcdcd8; }
+  .monk-badge:hover{ background:#d8d7d2; }
   .monk-badge:active{ transform:translateY(1px); }
   .monk-badge:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
   .agency-text{ font-size:12px; color:var(--ink-muted); }
@@ -1811,7 +1811,7 @@ function renderHeatmap(days, hodTrim){
       var cell = (matrix[h] && matrix[h][d]) || {net:0, orders:0};
       var closed = !isOpenAt(dowName, h) && cell.net === 0;
       var intensity = maxNet ? cell.net/maxNet : 0;
-      var bg = cell.net>0 ? 'rgba(168,64,42,'+(0.10+intensity*0.75).toFixed(2)+')' : 'transparent';
+      var bg = cell.net>0 ? 'rgba(13,13,13,'+(0.05+intensity*0.30).toFixed(2)+')' : 'transparent';
       var isMax = best && best.h===h && best.d===d;
       var cls = closed ? ' class="heatcell-closed"' : (isMax ? ' class="heatcell-max"' : '');
       var title = closed ? dowName+', '+fmtHourLabel(h)+': closed' : dowName+', '+fmtHourLabel(h)+': '+fmtInt(cell.orders)+' orders, '+fmtGBP(cell.net);
