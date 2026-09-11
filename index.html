@@ -14,7 +14,7 @@
     --surface-raised: #ffffff;
     --ink-primary:    #14161a;
     --ink-secondary:  #545b66;
-    --ink-muted:      #88909a;
+    --ink-muted:      #5a616b;
     --grid:           #ecedf1;
     --baseline:       #d4d7dd;
     --border:         rgba(15,23,42,0.08);
@@ -230,8 +230,12 @@
 
   .chartbox{ position:relative; width:100%; overflow:visible; }
   .chartbox svg{ display:block; width:100%; height:auto; overflow:visible; }
-  .chartbox svg text{ font-family:"IBM Plex Mono",monospace; fill:var(--ink-muted); font-size:10.5px; }
-  .chartbox svg text.point-label{ fill:var(--ink-primary); font-weight:600; font-size:11px; }
+  .chartbox svg text{ font-family:"IBM Plex Mono",monospace; fill:var(--ink-muted); font-size:11.5px; }
+  .chartbox svg text.point-label{ fill:var(--ink-primary); font-weight:700; font-size:12.5px; }
+  @media (min-width:860px){
+    .chartbox svg text{ font-size:10.5px; }
+    .chartbox svg text.point-label{ font-size:11.5px; }
+  }
   .gridline{ stroke:var(--grid); stroke-width:1; shape-rendering:crispEdges; }
   .baseline{ stroke:var(--baseline); stroke-width:1; shape-rendering:crispEdges; }
   .hit{ fill:transparent; cursor:pointer; }
@@ -267,10 +271,10 @@
   .meterrow .fill{ height:100%; border-radius:5px; }
 
   .tablewrap{ overflow-x:auto; margin-top:10px; -webkit-overflow-scrolling:touch; }
-  table.datatable{ width:100%; border-collapse:collapse; font-size:12.5px; }
-  table.datatable th, table.datatable td{ text-align:right; padding:7px 10px; border-bottom:1px solid var(--border); font-variant-numeric:tabular-nums; font-family:"IBM Plex Mono",monospace; white-space:nowrap; }
+  table.datatable{ width:100%; border-collapse:collapse; font-size:13.5px; }
+  table.datatable th, table.datatable td{ text-align:right; padding:8px 10px; border-bottom:1px solid var(--border); font-variant-numeric:tabular-nums; font-family:"IBM Plex Mono",monospace; white-space:nowrap; }
   table.datatable th:first-child, table.datatable td:first-child{ text-align:left; font-family:"IBM Plex Sans",sans-serif; }
-  table.datatable thead th{ color:var(--ink-muted); font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:.04em; font-family:"IBM Plex Sans",sans-serif; }
+  table.datatable thead th{ color:var(--ink-muted); font-weight:700; font-size:11.5px; text-transform:uppercase; letter-spacing:.04em; font-family:"IBM Plex Sans",sans-serif; }
   table.datatable tfoot td{ font-weight:600; border-top:1.5px solid var(--baseline); border-bottom:none; color:var(--ink-primary); }
   table.heatmap{ table-layout:fixed; }
   table.heatmap th, table.heatmap td{ text-align:center; padding:7px 3px; border-bottom:1px solid var(--border); min-width:40px; }
@@ -281,12 +285,11 @@
     background:repeating-linear-gradient(45deg, var(--grid), var(--grid) 5px, transparent 5px, transparent 10px) !important;
     color:var(--ink-muted); font-size:10px;
   }
-  .hc-orders{ font:700 12.5px "IBM Plex Mono",monospace; color:var(--ink-primary); line-height:1.2; }
+  .hc-orders{ font:700 13px "IBM Plex Mono",monospace; color:var(--ink-primary); line-height:1.2; }
   .heatcell-max .hc-orders{ color:var(--accent-strong); }
-  .hc-net{ font:500 9px "IBM Plex Mono",monospace; color:var(--ink-muted); line-height:1.2; margin-top:1px; }
+  .hc-net{ font:600 10px "IBM Plex Mono",monospace; color:var(--ink-muted); line-height:1.2; margin-top:1px; }
   @media (min-width:860px){
     table.heatmap th, table.heatmap td{ padding:8px 4px; }
-    .hc-orders{ font-size:13px; } .hc-net{ font-size:10px; }
   }
   .opening-hours{ display:grid; grid-template-columns:repeat(auto-fit, minmax(160px,1fr)); gap:10px; }
   .opening-hours .oh-row{
@@ -842,6 +845,14 @@ function drawBarChart(container, opts){
             var lt = el('text', {x:rx+barW/2, y:labelY, 'text-anchor':'middle', class:'point-label'}, svg);
             lt.textContent = lbl2;
           }
+        } else if (opts.showValues){
+          var lblFn = opts.labelFmt || opts.axisFmt || function(x){return x;};
+          var lblText = lblFn(v);
+          if (lblText !== '' && lblText != null){
+            var labelY2 = v>=0 ? ry-7 : ry+segH+14;
+            var lt2 = el('text', {x:rx+barW/2, y:labelY2, 'text-anchor':'middle', class:'point-label'}, svg);
+            lt2.textContent = lblText;
+          }
         }
       });
     }
@@ -928,6 +939,16 @@ function drawLineChart(container, opts){
         var lblY = yAt(pts[pi].y) - 12;
         var t2 = el('text', {x:xAt(pi), y:lblY, 'text-anchor':'middle', class:'point-label'}, svg);
         t2.textContent = opts.pointLabel(pts[pi], pi);
+      }
+    }
+  } else if (opts.pointLabel){
+    var labelEvery = n <= 14 ? 1 : Math.ceil(n/10);
+    for (var pj=0; pj<n; pj++){
+      el('circle', {cx:xAt(pj), cy:yAt(pts[pj].y), r:3, fill:opts.color, class:'endmark'}, svg);
+      if (pj % labelEvery === 0 || pj === n-1){
+        var lblY2 = yAt(pts[pj].y) - 10;
+        var t3 = el('text', {x:xAt(pj), y:lblY2, 'text-anchor':'middle', class:'point-label'}, svg);
+        t3.textContent = opts.pointLabel(pts[pj], pj);
       }
     }
   } else {
@@ -1686,6 +1707,7 @@ function renderDaily(){
       valueFmt: function(v){return fmtGBP(v);}, axisFmt: fmtCompactGBP,
       xFmt: function(h){ return fmtHourLabel(parseInt(h,10)).split('–')[0]; },
       titleFmt: function(h){ return fmtHourLabel(parseInt(h,10)); },
+      pointLabel: function(p){ return fmtCompactGBP(p.y); },
       height: 280,
       ariaLabel:'Net sales by hour, ' + filterLabel()
     });
@@ -1708,6 +1730,7 @@ function renderDaily(){
     valueFmt: function(v){return fmtGBP(v);}, axisFmt: fmtCompactGBP,
     xFmt: function(d){ return fmtDateShort(d); },
     titleFmt: function(d){ return fmtDateLong(d); },
+    pointLabel: function(p){ return fmtCompactGBP(p.y); },
     height: 280,
     ariaLabel:'Daily net sales, ' + filterLabel()
   });
@@ -1752,6 +1775,7 @@ function renderDowHod(){
     series: [{name:'Net sales', color: resolveColor('var(--s1)'), values: DATA.dowOrder.map(function(d){return dow[d];})}],
     mode:'single', xFmt: function(d,i){return dowLabels.short[i];}, titleFmt: function(d,i){return dowLabels.full[i];},
     valueFmt: function(v){return fmtGBP(v);}, axisFmt: fmtCompactGBP, barMax: 34,
+    showValues:true, labelFmt: fmtCompactGBP,
     ariaLabel: 'Net sales by day of week'
   });
   drawBarChart(document.getElementById('hodChart'), {
@@ -1759,6 +1783,7 @@ function renderDowHod(){
     series: [{name:'Net sales', color: resolveColor('var(--s2)'), values: hodTrim.map(function(h){return hod[h];})}],
     mode:'single', xFmt: function(h){return (h%12===0?12:h%12)+(h<12?'a':'p');}, titleFmt: function(h){return fmtHourLabel(h);},
     valueFmt: function(v){return fmtGBP(v);}, axisFmt: fmtCompactGBP, barMax: 20,
+    showValues:true, labelFmt: fmtCompactGBP,
     ariaLabel: 'Net sales by hour of day'
   });
 
@@ -2017,6 +2042,7 @@ function renderCharges(){
     series: [{name:'Charges', color: resolveColor('var(--s4)'), values: hodTrim.map(function(h){return hodCharges[h];})}],
     mode:'single', xFmt: function(h){return (h%12===0?12:h%12)+(h<12?'a':'p');}, titleFmt: function(h){return fmtHourLabel(h);},
     valueFmt: function(v){return fmtGBP(v);}, axisFmt: fmtCompactGBP, barMax: 20,
+    showValues:true, labelFmt: fmtCompactGBP,
     ariaLabel: 'Delivery charges collected by hour of day'
   });
   document.getElementById('chargesCaveat').textContent = 'This shop only itemises delivery charges on orders (service, DRS and packaging charges are £0 across the export) — so "charges" here is effectively the delivery fee passed to customers, not the shop\'s actual courier cost.';
@@ -2495,6 +2521,7 @@ function renderScenario(){
     mode:'grouped', xFmt: function(mo){return FORECAST_MONTHS.filter(function(m){return m.key===mo;})[0].label;},
     titleFmt: function(mo){return FORECAST_MONTHS.filter(function(m){return m.key===mo;})[0].label;},
     valueFmt: function(v){return fmtGBP(v);}, axisFmt: fmtCompactGBP,
+    showValues:true, labelFmt: fmtCompactGBP,
     ariaLabel:'Baseline vs with-marketing sales scenario, Sep to Dec 2026'
   });
 
